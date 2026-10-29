@@ -1,0 +1,989 @@
+<!--
+  OtaimFlux - generateur de films a sequences variables / variable-sequence film generator
+  Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin
+  SPDX-License-Identifier: GPL-3.0-or-later
+  Avec exception pour les pages qui integrent le player genere / With an exception for pages that embed the generated player (voir le script / see the script)
+-->
+<div id="of" data-lang="fr">
+<div id="of-lang"><button type="button" data-lang="fr" class="on">FR</button><button type="button" data-lang="en">EN</button></div>
+<h4><span style="color:#a07724;"><span class="fr">OtaimFlux — générateur de film à séquences variables</span><span class="en">OtaimFlux — variable-sequence film generator</span></span></h4>
+
+<div id="of-resume" class="of-resume" style="display:none;"><span class="fr">↺ Film en cours repris :</span><span class="en">↺ Film in progress restored:</span> <b id="of-resume-t"></b> <button type="button" id="of-new" class="of-btn2"><span class="fr">Nouveau film</span><span class="en">New film</span></button></div>
+
+<details class="of-card" id="of-import">
+<summary><span class="fr">↺ Reprendre un film déjà généré</span><span class="en">↺ Reopen a film you already generated</span></summary>
+<p class="of-hint"><span class="fr">Collez le code d'un film généré avec OtaimFlux (le code de votre page, ou le fichier .html du player), ou choisissez ce fichier : tous les champs se remplissent. Vous pouvez alors modifier, ajouter une variante, puis regénérer.</span><span class="en">Paste the code of a film generated with OtaimFlux (your page's code, or the player's .html file), or choose that file: every field gets filled in. You can then edit, add a variant, and generate again.</span></p>
+<textarea id="of-imp" rows="4" style="font-family:monospace;font-size:12px;"></textarea>
+<div class="of-row"><button type="button" id="of-impb" class="of-btn2"><span class="fr">Charger ce code</span><span class="en">Load this code</span></button> <input type="file" id="of-impf" accept=".html,.htm,.txt"></div>
+<p id="of-impm" class="of-hint"></p>
+</details>
+
+<div class="of-card">
+<h5><span class="fr">① Votre film</span><span class="en">① Your film</span></h5>
+<label for="of-titre"><span class="fr">Titre du film</span><span class="en">Film title</span></label>
+<input type="text" id="of-titre" placeholder="Mon film aléatoire">
+<label for="of-n"><span class="fr">Nombre de séquences</span><span class="en">Number of sequences</span></label>
+<input type="number" id="of-n" min="1" value="1" style="width:90px;">
+<label class="of-inline"><input type="checkbox" id="of-fini"> <span class="fr">Film avec une fin (la dernière séquence ne reboucle pas)</span><span class="en">Film with an ending (the last sequence does not loop back)</span></label>
+</div>
+
+<div class="of-card">
+<h5><span class="fr">② Vos vidéos</span><span class="en">② Your videos</span></h5>
+<p class="of-hint"><span class="fr">Pour chaque séquence, collez les adresses (URL) de ses variantes, <b>une par ligne</b>. Le player en choisira une au hasard à chaque passage.</span><span class="en">For each sequence, paste the addresses (URLs) of its variants, <b>one per line</b>. The player will pick one at random each time round.</span></p>
+<div id="of-seqs"></div>
+<details class="of-card" style="background:#fff">
+<summary><span class="fr">Règles d'exclusion entre variantes (avancé, facultatif)</span><span class="en">Exclusion rules between variants (advanced, optional)</span></summary>
+<p class="of-hint"><span class="fr">Une règle dit : « quand cette variante est jouée, telles autres variantes ne doivent pas être jouées ensuite ». Elle suit tout le fil du film : vous pouvez viser n'importe quelle séquence suivante, pas seulement la prochaine. Exemple : après la variante 3 de la séquence 2, jamais 4/1, 5/11, 6/4 ni 10/9.</span><span class="en">A rule says: “when this variant is played, these other variants must not be played afterwards”. It follows the whole thread of the film: you can target any later sequence, not just the next one. Example: after variant 3 of sequence 2, never 4/1, 5/11, 6/4 or 10/9.</span></p>
+<div id="of-rules"></div>
+</details>
+</div>
+
+<details class="of-card" id="of-opt">
+<summary><span class="fr">③ Réglages facultatifs</span><span class="en">③ Optional settings</span></summary>
+
+<div class="of-sec">
+<div class="of-sec-t"><span class="fr">Image et sons</span><span class="en">Image and sounds</span></div>
+<label for="of-thumb"><span class="fr">URL de la miniature</span><span class="en">Thumbnail URL</span></label>
+<p class="of-hint"><span class="fr">L'image affichée avant le lancement du film.</span><span class="en">The image shown before the film starts.</span></p>
+<input type="url" id="of-thumb" placeholder="https://...jpg">
+<label for="of-sound"><span class="fr">URL du son de changement</span><span class="en">Switch sound URL</span></label>
+<p class="of-hint"><span class="fr">Un petit son joué à chaque passage d'une séquence à l'autre.</span><span class="en">A short sound played each time the film moves from one sequence to the next.</span></p>
+<input type="url" id="of-sound" placeholder="https://...mp3">
+</div>
+
+<div class="of-sec">
+<div class="of-sec-t"><span class="fr">Bandes son</span><span class="en">Soundtracks</span></div>
+<p class="of-hint"><span class="fr">Un fichier son qui démarre au début d’une séquence et s’arrête à la fin d’une autre (ex. : de la séquence 2 à la séquence 5). Vous pouvez en ajouter autant que nécessaire.</span><span class="en">A sound file that starts at the beginning of one sequence and stops at the end of another (e.g. from sequence 2 to sequence 5). Add as many as you need.</span></p>
+<div id="of-tracks"></div>
+<button type="button" id="of-add-track" class="of-btn2"><span class="fr">+ Ajouter une bande son</span><span class="en">+ Add a soundtrack</span></button>
+</div>
+
+<div class="of-sec">
+<div class="of-sec-t"><span class="fr">Timing des changements</span><span class="en">Switch timing</span></div>
+<div class="of-subt"><span class="fr">Réglage général du switch entre les séquences</span><span class="en">General switch setting between sequences</span></div>
+<div class="of-row">
+<label for="of-lead"><span class="fr">Ajuster la fin de la séquence jouée</span><span class="en">Adjust the end of the sequence being played</span></label>
+<span class="of-nw"><input type="number" id="of-lead" min="0" max="5" step="0.05" value="1.1" style="width:80px;"> s</span>
+<label for="of-fade"><span class="fr">Durée du fondu entre les deux séq.</span><span class="en">Cross-fade between the two seq.</span></label>
+<span class="of-nw"><input type="number" id="of-fade" min="0" max="3" step="0.05" value="0.5" style="width:80px;"> s</span>
+</div>
+<p class="of-hint"><span class="fr">Premier chiffre : secondes avant la fin de la vidéo où l'on passe à la suivante (0 = à la toute fin, plus grand = plus tôt). Si le changement coupe la fin d'une séquence, diminuez-le (essayez 0.4, puis 0). Fondu : 0 = coupe franche.</span><span class="en">First number: seconds before the end of the video at which the film moves on (0 = at the very end, larger = earlier). If the switch cuts off the end of a sequence, lower it (try 0.4, then 0). Fade: 0 = hard cut.</span></p>
+
+<div class="of-subt"><span class="fr">Réglage du switch des variantes</span><span class="en">Switch setting for individual variants</span></div>
+<p class="of-hint"><span class="fr">Facultatif. Pour une variante précise dont la fin est coupée, choisissez-la et indiquez ses propres secondes. Les autres variantes gardent le réglage général.</span><span class="en">Optional. For a specific variant whose end gets cut off, select it and enter its own seconds. All other variants keep the general setting.</span></p>
+<div id="of-vt"></div>
+</div>
+
+<div class="of-sec">
+<div class="of-sec-t"><span class="fr">Langue du player</span><span class="en">Player language</span></div>
+<p class="of-hint"><span class="fr">Langue des infobulles et de la fenêtre « Intégrer ».</span><span class="en">Language of the tooltips and of the “Embed” window.</span></p>
+<select id="of-plang"><option value="fr">Français</option><option value="en">English</option></select>
+</div>
+</details>
+
+<details class="of-card">
+<summary><span class="fr">④ Intégration : bouton « Intégrer » (iframe)</span><span class="en">④ Embedding: “Embed” button (iframe)</span></summary>
+<label for="of-iframe"><span class="fr">URL où vous déposerez la page standalone (2ᵉ code généré)</span><span class="en">URL where you will upload the standalone page (2nd generated code)</span></label>
+<input type="url" id="of-iframe" placeholder="https://monsite.net/mon-film-player.html">
+</details>
+
+<button id="of-go" disabled><span class="fr">Générer les codes</span><span class="en">Generate the codes</span></button>
+<p id="of-msg" class="of-hint"></p>
+<div id="of-out"></div>
+<p class="of-hint" style="margin-top:22px;">OtaimFlux © 2025 Cie O t'aim, Jean-Daniel Magnin — <span class="fr">licence GPL v3 ou ultérieure, avec exception pour les pages qui intègrent le player</span><span class="en">GPL v3 or later license, with an exception for pages that embed the player</span></p>
+</div>
+
+<style>
+#of{max-width:860px;margin:0 auto;padding:20px;font-family:sans-serif}
+#of[data-lang="fr"] .en{display:none}
+#of[data-lang="en"] .fr{display:none}
+#of-lang{text-align:right}
+#of-lang button{padding:4px 12px;border:1px solid #c49a2b;background:#fff;color:#a07724;cursor:pointer;font-size:12px}
+#of-lang button:first-child{border-radius:4px 0 0 4px}
+#of-lang button:last-child{border-radius:0 4px 4px 0;border-left:none}
+#of-lang button.on{background:#c49a2b;color:#fff}
+#of label{display:block;font-weight:bold;margin-top:12px}
+#of label.of-inline{font-weight:normal;display:flex;gap:6px;align-items:center}
+#of input[type=text],#of input[type=url],#of input[type=number],#of textarea,#of select{padding:6px 8px;margin:4px 0;box-sizing:border-box;border:1px solid #ccc;border-radius:3px}
+#of input[type=text],#of input[type=url],#of textarea{width:100%}
+#of h5{margin:0 0 4px;font-size:16px;color:#a07724}
+#of h6{margin:20px 0 4px;font-size:14px}
+.of-card{border:1px solid #ddd;border-radius:6px;padding:14px 16px;margin-top:14px;background:#fafafa}
+.of-card summary{cursor:pointer;font-weight:bold;color:#a07724}
+.of-hint{font-size:12px;color:#777;margin:4px 0}
+.of-seq{border-left:3px solid #c49a2b;background:#fff;padding:8px 12px;margin-top:10px;border-radius:0 4px 4px 0}
+.of-seq textarea{font-family:monospace;font-size:12px;height:76px}
+.of-seq label{font-weight:normal;font-size:12px}
+.of-seq details summary{font-weight:normal;font-size:12px;color:#666}
+.of-r{margin:6px 0;font-size:12px}
+.of-r label{display:inline-flex;align-items:center;gap:3px;margin:0 10px 0 0;font-size:12px}
+.of-trk{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;border:1px solid #e5e5e5;border-radius:4px;padding:8px;margin:6px 0;font-size:13px}
+.of-trk input[type=url]{flex:1 1 260px;width:auto}
+.of-trk input[type=number]{width:62px}
+.of-btn2{padding:6px 12px;border:1px solid #c49a2b;background:#fff;color:#a07724;border-radius:4px;cursor:pointer;font-size:13px}
+#of-go{margin-top:16px;padding:10px 20px;font-size:14px;cursor:pointer;background:#c49a2b;color:#fff;border:none;border-radius:4px}
+#of-go:disabled{background:#ccc;cursor:not-allowed}
+.of-tabs{display:flex;gap:8px;margin-top:20px;margin-bottom:-1px}
+.of-tabs button{padding:8px 18px;border:1px solid #ccc;border-bottom:none;background:#eee;cursor:pointer;border-radius:4px 4px 0 0;font-size:13px}
+.of-tabs button.on{background:#fff;font-weight:bold;color:#c49a2b}
+.of-panel{border:1px solid #ccc;padding:12px;border-radius:0 4px 4px 4px;background:#fff}
+.of-panel.off{display:none}
+.of-panel textarea{height:320px;font-family:monospace;font-size:12px;margin-top:8px}
+.of-copy{margin-top:6px;padding:7px 16px;background:#555;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px}
+.of-rule{border-left:3px solid #c49a2b;background:#fafafa;padding:8px 12px;margin:8px 0;border-radius:0 4px 4px 0;font-size:13px}
+.of-tg{margin:4px 0 4px 14px}
+.of-warn{color:#b3261e;font-size:12px}
+#of select{max-width:100%}
+.of-resume{background:#fff7e0;border:1px solid #c49a2b;border-radius:6px;padding:8px 12px;margin-top:10px;font-size:13px}
+#of .of-sec{border-top:1px solid #e0e0e0;margin-top:26px;padding-top:14px}
+#of .of-sec:first-of-type{margin-top:14px}
+#of .of-sec-t{display:block;font-size:17px !important;font-weight:bold !important;color:#a07724;margin:0 0 8px;line-height:1.3;text-transform:none !important}
+#of .of-subt{font-size:12px !important;font-weight:bold !important;text-transform:uppercase;letter-spacing:.04em;color:#555;margin:18px 0 6px}
+#of .of-sec label{font-weight:normal !important;font-size:14px !important;margin-top:10px;text-transform:none}
+#of .of-sec .of-hint{font-size:12px !important;color:#777;margin:2px 0 6px;line-height:1.4}
+#of .of-row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:6px 0}
+#of .of-row label{display:inline !important;margin:0 !important}
+#of .of-row span,#of .of-row select{font-size:13px}
+.of-nw{white-space:nowrap}
+#of .of-vt{background:#fff;border:1px solid #e5e5e5;border-radius:4px;padding:6px 8px}
+</style>
+
+<script>
+/* OtaimFlux - generateur / generator
+   Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin
+   SPDX-License-Identifier: GPL-3.0-or-later
+
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program. If not, see https://www.gnu.org/licenses/
+   
+   ADDITIONAL PERMISSION under section 7 of the GNU GPL version 3:
+   As a special exception, the copyright holders give you permission to
+   include the code generated by OtaimFlux (the film player) in a web page or
+   website, and to distribute that page or website together with your own
+   content (films, videos, texts, images and code of your own), without that
+   page, website or content becoming subject to the GNU GPL merely because of
+   that inclusion. This permission does not extend to the OtaimFlux generator
+   or player code themselves, nor to modified versions of them, which remain
+   under the GNU GPL; if you modify them, you may, but need not, extend this
+   permission to your version.
+   
+   AUTORISATION SUPPLÉMENTAIRE (section 7 de la GNU GPL v3) :
+   à titre d'exception, vous pouvez inclure le code produit par OtaimFlux
+   (le player) dans une page ou un site web et le diffuser avec vos propres
+   contenus (films, vidéos, textes, images, code qui vous appartient) sans que
+   cette page, ce site ou ces contenus soient soumis à la GNU GPL du seul fait
+   de cette inclusion. Cette autorisation ne s'étend pas au code du
+   générateur ni du player eux-mêmes, ni à leurs versions modifiées, qui
+   restent sous GPL ; si vous les modifiez, vous pouvez, sans y être obligé,
+   étendre cette autorisation à votre version.
+*/
+(function () {
+  var S = { n: 1, seqs: [{ t: '', l: '' }], tracks: [], rules: [], vt: [] };
+  var LANG = 'fr', PLANGSET = false;
+  var TR = {
+    'Séquence': 'Sequence', 'variante': 'variant', 'variantes': 'variants',
+    'Changer cette séquence … s avant sa fin (vide = réglage général) ': 'Switch this sequence … s before its end (empty = global setting) ',
+    'Règles de transition (avancé, facultatif)': 'Transition rules (advanced, optional)',
+    'Dernière séquence : rien ne la suit.': 'Last sequence: nothing follows it.',
+    'Ajoutez des vidéos à cette séquence et à la suivante pour définir des règles.': 'Add videos to this sequence and the next one to define rules.',
+    'Cochez les variantes de la séquence': 'Tick the variants of sequence',
+    'qui ne doivent': 'that must', 'pas': 'not', 'suivre chaque variante ci-dessous.': 'follow each variant below.',
+    'Après « ': 'After “', ' »': '”', 'pas :': 'not:',
+    'de la séq. ': 'from seq. ', 'à la séq. ': 'to seq. ', 'volume ': 'volume ', 'boucler': 'loop',
+    'Il manque des vidéos pour la séquence ': 'Videos are missing for sequence ',
+    'Une bande son commence après sa fin : corrigez les numéros de séquence.': 'A soundtrack starts after its end: please fix the sequence numbers.',
+    '1 · Code pour votre page': '1 · Code for your page', '2 · Page iframe (HTML)': '2 · Iframe page (HTML)',
+    'Collez ce code dans un bloc de code HTML de votre page (« HTML personnalisé » sous WordPress).': 'Paste this code into an HTML code block on your page (“Custom HTML” on WordPress).',
+    'Enregistrez dans un éditeur de texte brut sous un nom en': 'Save it in a plain-text editor under a name ending in',
+    '(celui indiqué à l’étape ④), puis déposez-le sur votre hébergement.': '(the one entered in step ④), then upload it to your hosting.',
+    'Copier': 'Copy', 'Copié !': 'Copied!'
+  };
+  var TR2 = {
+    'Aucune règle pour le moment.': 'No rule yet.',
+    'ajuster la fin de la variante': 'adjust the end of variant', '+ Ajouter un réglage de variante': '+ Add a variant setting',
+    'Code non reconnu : collez le code complet généré par OtaimFlux.': 'Code not recognised: paste the full code generated by OtaimFlux.',
+    'Film chargé :': 'Film loaded:', 'séquences': 'sequences',
+    'Quand la séquence': 'When sequence', 'joue la variante': 'plays variant',
+    'ne jamais jouer ensuite :': 'never play afterwards:',
+    'séquence': 'sequence',
+    '+ Ajouter une exclusion': '+ Add an exclusion', '+ Ajouter une règle': '+ Add a rule', 'Supprimer': 'Delete',
+    'Sans effet : même séquence.': 'No effect: same sequence.',
+    'Sans effet : le film ne reboucle pas.': 'No effect: the film does not loop back.'
+  };
+  for (var tk in TR2) TR[tk] = TR2[tk];
+  function L(k) { return LANG === 'en' ? (TR[k] || k) : k; }
+  var PT = {
+    fr: { start: 'Démarrer', stop: 'Arrêter', pause: 'Pause', resume: 'Reprendre', fs: 'Plein écran', embed: 'Intégrer', embedTitle: 'Intégrer ce film', embedText: 'Copiez ce code pour intégrer le film sur votre site :', copy: 'Copier', copied: 'Copié !', close: 'Fermer' },
+    en: { start: 'Start', stop: 'Stop', pause: 'Pause', resume: 'Resume', fs: 'Fullscreen', embed: 'Embed', embedTitle: 'Embed this film', embedText: 'Copy this code to embed the film on your site:', copy: 'Copy', copied: 'Copied!', close: 'Close' }
+  };
+  function setLang(l) {
+    LANG = l;
+    $('of').setAttribute('data-lang', l);
+    qsa('#of-lang button').forEach(function (b) { b.className = b.getAttribute('data-lang') === l ? 'on' : ''; });
+    $('of-titre').placeholder = l === 'en' ? 'My random film' : 'Mon film aléatoire';
+    if (!PLANGSET) $('of-plang').value = l;
+    renderSeqs();
+  }
+  function $(id) { return document.getElementById(id); }
+  function qsa(s) { return document.querySelectorAll(s); }
+  function esc(s) { return String(s).replace(/\x26/g, '\x26amp;').replace(/"/g, '\x26quot;').replace(/\x3C/g, '\x26lt;'); }
+  function fini() { return $('of-fini').checked; }
+  function urls(i) { return S.seqs[i].t.split('\n').map(function (x) { return x.trim(); }).filter(Boolean); }
+  function nm(u) {
+    var p = u.split('?')[0].split('/').pop();
+    try { p = decodeURIComponent(p); } catch (e) {}
+    return p.replace(/\.[a-z0-9]+$/i, '') || u;
+  }
+  function nextOf(i) { if (i < S.n - 1) return i + 1; return fini() ? null : 0; }
+  function prevOf(i) { if (i > 0) return i - 1; return fini() ? null : S.n - 1; }
+
+  /* ── Séquences ── */
+  var rulesTimer = null;
+  function renderSeqs() {
+    var n = Math.min(Math.max(parseInt($('of-n').value, 10) || 1, 1), 1000);
+    S.n = n;
+    var a = [];
+    for (var i = 0; i < n; i++) a.push(S.seqs[i] || { t: '' });
+    S.seqs = a;
+    var h = '';
+    for (var i = 0; i < n; i++) {
+      h += '\x3Cdiv class="of-seq">\x3Cb>' + L('Séquence') + ' ' + (i + 1) + '\x3C/b> \x3Cspan class="of-hint" data-count="' + i + '">\x3C/span>'
+        + '\x3Ctextarea data-t="' + i + '" placeholder="https://monsite.net/1a.mp4\x26#10;https://monsite.net/1b.mp4">' + esc(a[i].t) + '\x3C/textarea>'
+        + '\x3C/div>';
+    }
+    $('of-seqs').innerHTML = h;
+    for (var i = 0; i < n; i++) count(i);
+    S.tracks.forEach(function (t) { t.from = Math.min(t.from, n); t.to = Math.min(t.to, n); });
+    renderTracks(); renderRules(); renderVt(); validate();
+  }
+  function count(i) {
+    var c = urls(i).length;
+    var el = document.querySelector('[data-count="' + i + '"]');
+    if (el) el.textContent = c ? '— ' + c + ' ' + L(c > 1 ? 'variantes' : 'variante') : '';
+  }
+  function onSeqInput(e) {
+    var t = e.target;
+    if (t.hasAttribute('data-t')) {
+      var i = parseInt(t.getAttribute('data-t'), 10);
+      S.seqs[i].t = t.value;
+      count(i);
+      clearTimeout(rulesTimer);
+      rulesTimer = setTimeout(refreshSel, 300);
+    }
+    validate();
+  }
+
+  /* ── Règles d'exclusion « en fil » ── */
+  function seqOpts(sel) {
+    var h = '';
+    for (var i = 1; i <= S.n; i++) h += '\x3Coption value="' + i + '"' + (i === sel ? ' selected' : '') + '>' + i + '\x3C/option>';
+    return h;
+  }
+  function varOpts(s, sel) {
+    var u = urls(s - 1), h = '';
+    for (var j = 0; j < u.length; j++) h += '\x3Coption value="' + (j + 1) + '"' + (j + 1 === sel ? ' selected' : '') + '>' + (j + 1) + ' — ' + esc(nm(u[j])) + '\x3C/option>';
+    return h || '\x3Coption value="1">—\x3C/option>';
+  }
+  function clampV(s, v) { return Math.min(Math.max(v, 1), Math.max(urls(s - 1).length, 1)); }
+  function renderRules() {
+    var h = '';
+    if (S.rules.length === 0) h += '\x3Cp class="of-hint">' + L('Aucune règle pour le moment.') + '\x3C/p>';
+    S.rules.forEach(function (r, i) {
+      r.fs = Math.min(Math.max(r.fs, 1), S.n);
+      r.fv = clampV(r.fs, r.fv);
+      h += '\x3Cdiv class="of-rule">' + L('Quand la séquence') + ' \x3Cselect data-ri="' + i + '" data-rf="s">' + seqOpts(r.fs) + '\x3C/select> '
+        + L('joue la variante') + ' \x3Cselect data-ri="' + i + '" data-rf="v">' + varOpts(r.fs, r.fv) + '\x3C/select> '
+        + '\x3Cbutton type="button" class="of-btn2" data-rdel="' + i + '" title="' + L('Supprimer') + '">✕\x3C/button>'
+        + '\x3Cdiv class="of-hint">' + L('ne jamais jouer ensuite :') + '\x3C/div>';
+      var sum = [];
+      r.t.forEach(function (g, k) {
+        g.s = Math.min(Math.max(g.s, 1), S.n);
+        g.v = clampV(g.s, g.v);
+        var w = '';
+        if (g.s === r.fs) w = L('Sans effet : même séquence.');
+        else if (g.s < r.fs) { if ($('of-fini').checked) w = L('Sans effet : le film ne reboucle pas.'); }
+        h += '\x3Cdiv class="of-tg">' + L('séquence') + ' \x3Cselect data-ri="' + i + '" data-tk="' + k + '" data-rf="ts">' + seqOpts(g.s) + '\x3C/select> '
+          + L('variante') + ' \x3Cselect data-ri="' + i + '" data-tk="' + k + '" data-rf="tv">' + varOpts(g.s, g.v) + '\x3C/select> '
+          + '\x3Cbutton type="button" class="of-btn2" data-tdel="' + i + ':' + k + '" title="' + L('Supprimer') + '">✕\x3C/button>'
+          + (w ? ' \x3Cspan class="of-warn">' + w + '\x3C/span>' : '') + '\x3C/div>';
+        sum.push(g.s + '/' + g.v);
+      });
+      h += '\x3Cbutton type="button" class="of-btn2" data-tadd="' + i + '">' + L('+ Ajouter une exclusion') + '\x3C/button>'
+        + '\x3Cdiv class="of-hint">' + r.fs + '/' + r.fv + ' → ' + (sum.length ? sum.join(', ') : '…') + '\x3C/div>\x3C/div>';
+    });
+    h += '\x3Cbutton type="button" class="of-btn2" data-radd="1">' + L('+ Ajouter une règle') + '\x3C/button>';
+    $('of-rules').innerHTML = h;
+  }
+  function onRules(e) {
+    var t = e.target;
+    if (e.type === 'click') {
+      if (t.hasAttribute('data-radd')) S.rules.push({ fs: 1, fv: 1, t: [{ s: Math.min(2, S.n), v: 1 }] });
+      else if (t.hasAttribute('data-rdel')) S.rules.splice(parseInt(t.getAttribute('data-rdel'), 10), 1);
+      else if (t.hasAttribute('data-tadd')) {
+        var r0 = S.rules[parseInt(t.getAttribute('data-tadd'), 10)];
+        r0.t.push({ s: Math.min(r0.fs + 1, S.n), v: 1 });
+      } else if (t.hasAttribute('data-tdel')) {
+        var p = t.getAttribute('data-tdel').split(':');
+        S.rules[parseInt(p[0], 10)].t.splice(parseInt(p[1], 10), 1);
+      } else return;
+      renderRules();
+      return;
+    }
+    if (!t.hasAttribute('data-ri')) return;
+    var r = S.rules[parseInt(t.getAttribute('data-ri'), 10)], f = t.getAttribute('data-rf'), val = parseInt(t.value, 10) || 1;
+    if (f === 's') { r.fs = val; r.fv = 1; }
+    else if (f === 'v') r.fv = val;
+    else {
+      var g = r.t[parseInt(t.getAttribute('data-tk'), 10)];
+      if (f === 'ts') { g.s = val; g.v = 1; } else g.v = val;
+    }
+    renderRules();
+  }
+
+  /* ── Réglage du timing par variante ── */
+  function renderVt() {
+    var h = '';
+    S.vt.forEach(function (x, k) {
+      x.s = Math.min(Math.max(x.s, 1), S.n);
+      x.v = clampV(x.s, x.v);
+      h += '\x3Cdiv class="of-row of-vt">\x3Cspan>' + L('Séquence') + '\x3C/span> \x3Cselect data-vk="' + k + '" data-vf="s">' + seqOpts(x.s) + '\x3C/select> '
+        + '\x3Cspan>' + L('variante') + '\x3C/span> \x3Cselect data-vk="' + k + '" data-vf="v">' + varOpts(x.s, x.v) + '\x3C/select> '
+        + '\x3Cspan>' + L('ajuster la fin de la variante') + '\x3C/span> \x3Cinput type="number" data-vk="' + k + '" data-vf="sec" min="0" max="5" step="0.05" value="' + esc(x.sec) + '" style="width:70px"> s '
+        + '\x3Cbutton type="button" class="of-btn2" data-vdel="' + k + '" title="' + L('Supprimer') + '">✕\x3C/button>\x3C/div>';
+    });
+    h += '\x3Cbutton type="button" class="of-btn2" data-vadd="1">' + L('+ Ajouter un réglage de variante') + '\x3C/button>';
+    $('of-vt').innerHTML = h;
+  }
+  function onVt(e) {
+    var t = e.target;
+    if (e.type === 'click') {
+      if (t.hasAttribute('data-vadd')) S.vt.push({ s: 1, v: 1, sec: '' });
+      else if (t.hasAttribute('data-vdel')) S.vt.splice(parseInt(t.getAttribute('data-vdel'), 10), 1);
+      else return;
+      renderVt();
+      return;
+    }
+    if (!t.hasAttribute('data-vk')) return;
+    var x = S.vt[parseInt(t.getAttribute('data-vk'), 10)], f = t.getAttribute('data-vf');
+    if (f === 'sec') { x.sec = t.value; return; }
+    if (e.type !== 'change') return;
+    var val = parseInt(t.value, 10) || 1;
+    if (f === 's') { x.s = val; x.v = 1; } else x.v = val;
+    renderVt();
+  }
+  function refreshSel() { renderRules(); renderVt(); }
+
+  /* ── Mémoire du film en cours (dans ce navigateur) ── */
+  var noSave = false, saveTimer = null;
+  function save() {
+    if (noSave) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try {
+        localStorage.setItem('otaimfluxProject', JSON.stringify({
+          titre: $('of-titre').value, thumb: $('of-thumb').value, sound: $('of-sound').value, iframe: $('of-iframe').value,
+          fini: $('of-fini').checked, lead: $('of-lead').value, fade: $('of-fade').value,
+          plang: $('of-plang').value, plset: PLANGSET, S: S
+        }));
+      } catch (e) {}
+    }, 400);
+  }
+  function restoreProject() {
+    var raw = null;
+    try { raw = localStorage.getItem('otaimfluxProject'); } catch (e) {}
+    if (!raw) return;
+    try {
+      var d = JSON.parse(raw);
+      var filled = d.titre ? true : d.S.seqs.some(function (q) { return q.t; });
+      if (!filled) return;
+      S.n = d.S.n; S.seqs = d.S.seqs; S.tracks = d.S.tracks || []; S.rules = d.S.rules || []; S.vt = d.S.vt || [];
+      $('of-n').value = d.S.n;
+      $('of-titre').value = d.titre; $('of-thumb').value = d.thumb; $('of-sound').value = d.sound; $('of-iframe').value = d.iframe;
+      $('of-fini').checked = !!d.fini; $('of-lead').value = d.lead; $('of-fade').value = d.fade;
+      $('of-plang').value = d.plang; PLANGSET = !!d.plset;
+      $('of-resume-t').textContent = d.titre || '';
+      $('of-resume').style.display = 'block';
+    } catch (e) {}
+  }
+  function newFilm() {
+    noSave = true;
+    try { localStorage.removeItem('otaimfluxProject'); } catch (e) {}
+    location.reload();
+  }
+
+  /* ── Reprendre un film déjà généré (à partir de son code) ── */
+  function parseCode(txt) {
+    var m = txt.match(/var CONFIG = (\{[\s\S]*?\});\s*\(function runtime/);
+    if (m) return JSON.parse(m[1]);
+    var k = txt.indexOf('filmConfig = ');
+    if (k < 0) return null;
+    var a = txt.indexOf('{', k), depth = 0, inStr = false, i = a;
+    for (; i < txt.length; i++) {
+      var ch = txt.charAt(i);
+      if (ch === '"') inStr = !inStr;
+      if (!inStr) {
+        if (ch === '{') depth++;
+        if (ch === '}') { depth--; if (depth === 0) break; }
+      }
+    }
+    var c = JSON.parse(txt.substring(a, i + 1).replace(/([{,]\s*)([A-Za-z_]+)\s*:/g, '$1"$2":'));
+    var f = txt.match(/\x3Ciframe src="([^"]+)"/);
+    if (f) c.iframeSrc = f[1];
+    return c;
+  }
+  function fillFrom(c) {
+    var seqs = c.sequences, n0 = seqs.length, rl = c.rules || [];
+    if (!c.rules) {
+      if (c.exceptRules) {
+        rl = [];
+        Object.keys(c.exceptRules).forEach(function (i) {
+          var ii = parseInt(i, 10);
+          Object.keys(c.exceptRules[i]).forEach(function (j) {
+            var l = c.exceptRules[i][j] || [];
+            if (l.length) rl.push({ from: [ii, parseInt(j, 10)], not: l.map(function (k) { return [(ii + 1) % n0, k]; }) });
+          });
+        });
+      }
+    }
+    S.n = n0; $('of-n').value = n0;
+    S.seqs = seqs.map(function (u) { return { t: u.join('\n') }; });
+    S.rules = rl.map(function (r) { return { fs: r.from[0] + 1, fv: r.from[1] + 1, t: r.not.map(function (x) { return { s: x[0] + 1, v: x[1] + 1 }; }) }; });
+    S.tracks = (c.tracks || []).map(function (t) { return { url: t.url, from: t.from + 1, to: t.to + 1, vol: Math.round((t.volume === undefined ? 0.8 : t.volume) * 100), loop: !!t.loop }; });
+    S.vt = (c.varLead || []).map(function (x) { return { s: x.s + 1, v: x.v + 1, sec: String(x.lead) }; });
+    $('of-titre').value = c.titre || ''; $('of-thumb').value = c.thumbnail || ''; $('of-sound').value = c.sound || ''; $('of-iframe').value = c.iframeSrc || '';
+    $('of-fini').checked = !!c.hasEnding;
+    $('of-lead').value = c.switchLead === undefined ? 1.1 : c.switchLead;
+    $('of-fade').value = c.fade === undefined ? 0.5 : c.fade;
+    PLANGSET = true; $('of-plang').value = c.lang === 'en' ? 'en' : 'fr';
+    renderSeqs();
+    save();
+  }
+  function loadCode(txt) {
+    var c = null;
+    try { c = parseCode(txt); } catch (e) { c = null; }
+    if (!c) { $('of-impm').textContent = L('Code non reconnu : collez le code complet généré par OtaimFlux.'); return; }
+    if (!c.sequences) { $('of-impm').textContent = L('Code non reconnu : collez le code complet généré par OtaimFlux.'); return; }
+    fillFrom(c);
+    $('of-impm').textContent = L('Film chargé :') + ' ' + (c.titre || '') + ' — ' + c.sequences.length + ' ' + L('séquences');
+  }
+
+  /* ── Bandes son ── */
+  function renderTracks() {
+    var h = '';
+    S.tracks.forEach(function (t, i) {
+      h += '\x3Cdiv class="of-trk">\x3Cinput type="url" data-ti="' + i + '" data-f="url" value="' + esc(t.url) + '" placeholder="https://...mp3">'
+        + L('de la séq. ') + '\x3Cinput type="number" data-ti="' + i + '" data-f="from" min="1" max="' + S.n + '" value="' + t.from + '">'
+        + L('à la séq. ') + '\x3Cinput type="number" data-ti="' + i + '" data-f="to" min="1" max="' + S.n + '" value="' + t.to + '">'
+        + L('volume ') + '\x3Cinput type="number" data-ti="' + i + '" data-f="vol" min="0" max="100" value="' + t.vol + '">%'
+        + '\x3Clabel class="of-inline" style="margin:0;font-weight:normal">\x3Cinput type="checkbox" data-ti="' + i + '" data-f="loop"' + (t.loop ? ' checked' : '') + '> ' + L('boucler') + '\x3C/label>'
+        + '\x3Cbutton type="button" class="of-btn2" data-del="' + i + '">✕\x3C/button>\x3C/div>';
+    });
+    $('of-tracks').innerHTML = h;
+  }
+  function onTrack(e) {
+    var t = e.target;
+    if (t.hasAttribute('data-del')) { S.tracks.splice(parseInt(t.getAttribute('data-del'), 10), 1); renderTracks(); validate(); return; }
+    if (!t.hasAttribute('data-ti')) return;
+    var tr = S.tracks[parseInt(t.getAttribute('data-ti'), 10)], f = t.getAttribute('data-f');
+    if (f === 'url') tr.url = t.value.trim();
+    else if (f === 'loop') tr.loop = t.checked;
+    else tr[f] = Math.min(Math.max(parseInt(t.value, 10) || 1, f === 'vol' ? 0 : 1), f === 'vol' ? 100 : S.n);
+    validate();
+  }
+
+  /* ── Validation ── */
+  function validate() {
+    var miss = [];
+    for (var i = 0; i < S.n; i++) if (urls(i).length === 0) miss.push(i + 1);
+    var bad = S.tracks.some(function (t) { return t.url ? t.from > t.to : false; });
+    var ok = miss.length === 0 ? !bad : false;
+    $('of-go').disabled = !ok;
+    $('of-msg').textContent = miss.length ? L('Il manque des vidéos pour la séquence ') + miss.join(', ') + '.'
+      : (bad ? L('Une bande son commence après sa fin : corrigez les numéros de séquence.') : '');
+  }
+
+  /* ── Code généré ── */
+  /* Moteur du player : écrit une seule fois, injecté tel quel dans les deux codes.
+     (Volontairement sans l’opérateur ET double : WordPress le transforme.) */
+  function runtime(cfg, uid) {
+    var root = document.getElementById('video-player-' + uid);
+    function g(n) { return document.getElementById(n + '_' + uid); }
+    var vids = [g('p1'), g('p2')];
+    var n = cfg.sequences.length, last = n - 1, PRE = 0.35;
+    var cur = 0, seq = 0, timer = null, gen = 0, running = false, userPaused = false, curVar = 0, nextVar = 0;
+    var played = cfg.sequences.map(function () { return []; });
+    var hist = cfg.sequences.map(function () { return null; });
+    var rules = cfg.rules || [];
+    /* iOS ne permet pas de régler le volume par script : on repère ces appareils */
+    var VOL = (function () { var m = document.createElement('video'); m.volume = 0.5; return m.volume === 0.5; })();
+    var sw = cfg.sound ? new Audio(cfg.sound) : null;
+    var tracks = (cfg.tracks || []).map(function (t) {
+      var a = new Audio(t.url); a.preload = 'auto'; a.loop = !!t.loop; a.volume = t.volume;
+      return { a: a, from: t.from, to: t.to, vol: t.volume, on: false, iv: null };
+    });
+    var playSVG = '\x3Csvg viewBox="0 0 24 24" width="16" height="16" style="fill:#fff;vertical-align:middle;">\x3Cpath d="M8 5v14l11-7z"/>\x3C/svg>';
+    var pauseSVG = '\x3Csvg viewBox="0 0 24 24" width="16" height="16" style="fill:#fff;vertical-align:middle;">\x3Cpath d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>\x3C/svg>';
+
+    function P(m) { var p = m.play(); if (p) p.catch(function () {}); }
+
+    /* iOS/Android : un média ne peut être lancé par script que s'il a déjà été lancé lors d'un geste. On le « débloque » au clic. */
+    function unlock(a, keep) {
+      try {
+        a.muted = true;
+        var p = a.play();
+        if (p) {
+          p.then(function () {
+            var k = false;
+            if (keep) k = keep();
+            if (!k) { a.pause(); a.currentTime = 0; }
+          }).catch(function () {});
+        }
+      } catch (e) {}
+    }
+
+    function leadFor(s) {
+      var l = cfg.switchLead;
+      var q = parseFloat(new URLSearchParams(location.search).get('lead'));
+      if (!isNaN(q)) l = q;
+      (cfg.varLead || []).forEach(function (x) { if (x.s === s) { if (x.v === curVar) l = x.lead; } });
+      return l;
+    }
+
+    /* bandes son */
+    function applyAudio(s) {
+      tracks.forEach(function (t) {
+        var inR = s >= t.from;
+        if (inR) inR = s <= t.to;
+        if (inR) {
+          if (!t.on) {
+            t.on = true; clearInterval(t.iv); t.a.muted = false; t.a.volume = t.vol; t.a.currentTime = 0;
+            P(t.a);
+          }
+        } else if (t.on) { t.on = false; fadeOut(t); }
+      });
+    }
+    function fadeOut(t) {
+      clearInterval(t.iv);
+      if (!VOL) { t.a.pause(); return; }
+      t.iv = setInterval(function () {
+        if (t.a.volume > 0.05) { t.a.volume = Math.max(0, t.a.volume - t.vol / 10); }
+        else { clearInterval(t.iv); t.a.pause(); t.a.volume = t.vol; }
+      }, 80);
+    }
+    function stopAudio() {
+      tracks.forEach(function (t) { clearInterval(t.iv); t.on = false; t.a.pause(); t.a.currentTime = 0; t.a.volume = t.vol; });
+      if (sw) sw.pause();
+    }
+
+    /* choix des variantes : exclusions « en fil » */
+    function excluded(si) {
+      var ex = [];
+      rules.forEach(function (r) {
+        if (hist[r.from[0]] === r.from[1]) {
+          r.not.forEach(function (t) { if (t[0] === si) ex.push(t[1]); });
+        }
+      });
+      return ex;
+    }
+    function choose(si) {
+      var vs = cfg.sequences[si], ex = excluded(si), ok = [];
+      for (var i = 0; i < vs.length; i++) if (ex.indexOf(i) < 0) ok.push(i);
+      if (ok.length === 0) ok = vs.map(function (v, i) { return i; });
+      var fresh = ok.filter(function (i) { return played[si].indexOf(i) < 0; });
+      if (fresh.length === 0) {
+        played[si] = played[si].filter(function (i) { return ok.indexOf(i) < 0; });
+        fresh = ok;
+      }
+      var c = fresh[Math.floor(Math.random() * fresh.length)];
+      played[si].push(c);
+      hist[si] = c;
+      return c;
+    }
+    function load(player, si) {
+      var c = choose(si);
+      nextVar = c;
+      player.src = cfg.sequences[si][c];
+      player.load();
+    }
+    function hasNext() { if (cfg.hasEnding) return seq !== last; return true; }
+
+    /* la vidéo cachée démarre en sourdine : iOS n'autorise pas deux sons à la fois */
+    function preload() {
+      var h = vids[cur === 0 ? 1 : 0];
+      h.muted = true;
+      P(h);
+    }
+    function crossAudio(old, nw) {
+      nw.muted = false;
+      if (VOL) {
+        nw.volume = 0;
+        var t0 = Date.now(), d = Math.max(cfg.fade, 0.05) * 1000;
+        var iv = setInterval(function () {
+          var k = Math.min(1, (Date.now() - t0) / d);
+          nw.volume = k; old.volume = 1 - k;
+          if (k >= 1) { clearInterval(iv); old.muted = true; old.volume = 1; }
+        }, 40);
+      } else { old.muted = true; }
+    }
+
+    function doSwitch(g0) {
+      if (g0 !== gen) return;
+      if (sw) { sw.muted = false; sw.currentTime = 0; P(sw); }
+      var old = vids[cur], nw = vids[cur === 0 ? 1 : 0];
+      P(nw);
+      old.style.zIndex = 900; old.style.opacity = 0;
+      nw.style.zIndex = 1000; nw.style.opacity = 1;
+      crossAudio(old, nw);
+      curVar = nextVar;
+      seq = (seq + 1) % n;
+      cur = cur === 0 ? 1 : 0;
+      applyAudio(seq);
+      /* l'ancienne vidéo n'est rechargée qu'une fois terminée : on ne coupe jamais sa fin */
+      var done = false;
+      var finish = function () {
+        if (done) return;
+        done = true;
+        if (g0 !== gen) return;
+        if (vids[cur] === old) return;
+        old.pause();
+        if (hasNext()) load(old, (seq + 1) % n);
+      };
+      old.addEventListener('ended', finish, { once: true });
+      var rem = old.duration > 0 ? old.duration - old.currentTime : 0;
+      setTimeout(finish, (rem + 0.4) * 1000);
+      watch();
+    }
+
+    function watch() {
+      clearInterval(timer);
+      var g0 = gen, v = vids[cur];
+      if (!hasNext()) {
+        v.addEventListener('ended', function () { if (g0 === gen) stop(); }, { once: true });
+        return;
+      }
+      var lead = leadFor(seq), armed = false;
+      var go = function () {
+        if (armed) return;
+        if (g0 !== gen) return;
+        armed = true; clearInterval(timer);
+        preload();
+        setTimeout(function () { doSwitch(g0); }, PRE * 1000);
+      };
+      v.addEventListener('ended', go, { once: true });
+      timer = setInterval(function () {
+        if (v.paused) return;
+        if (!(v.duration > 0)) return;
+        if (v.duration - v.currentTime <= lead + PRE) go();
+      }, 50);
+    }
+
+    function show(ids, d) { ids.forEach(function (id) { var e = g(id); if (e) e.style.display = d; }); }
+
+    function start() {
+      gen++;
+      var g0 = gen;
+      running = true; userPaused = false;
+      played.forEach(function (a) { a.length = 0; });
+      for (var i = 0; i < n; i++) hist[i] = null;
+      seq = 0; cur = 0;
+      var th = root.querySelector('.videoThumbnail');
+      if (th) th.style.display = 'none';
+      root.querySelector('.videoPlayers').style.display = 'block';
+      show(['start'], 'none');
+      show(['stop', 'pause', 'embed'], 'inline-block');
+      show(['fs'], (document.fullscreenEnabled || document.webkitFullscreenEnabled) ? 'inline-block' : 'none');
+      g('pause').innerHTML = pauseSVG;
+      vids.forEach(function (v) { v.style.transition = 'opacity ' + cfg.fade + 's'; });
+      vids[0].style.zIndex = 1000; vids[0].style.opacity = 1;
+      vids[1].style.zIndex = 900; vids[1].style.opacity = 0;
+      vids[0].muted = false; vids[0].volume = 1;
+      load(vids[0], 0);
+      curVar = nextVar;
+      P(vids[0]); /* lancé directement dans le clic : indispensable sur iPhone */
+      vids[1].muted = true;
+      if (hasNext()) { load(vids[1], (seq + 1) % n); unlock(vids[1], null); }
+      if (sw) unlock(sw, null);
+      tracks.forEach(function (t) { unlock(t.a, function () { return t.on; }); });
+      vids[0].addEventListener('playing', function f() {
+        vids[0].removeEventListener('playing', f);
+        if (g0 !== gen) return;
+        applyAudio(0);
+        watch();
+      });
+    }
+
+    function stop() {
+      gen++;
+      running = false;
+      clearInterval(timer);
+      vids.forEach(function (v) { v.pause(); v.muted = false; v.removeAttribute('src'); v.load(); });
+      stopAudio();
+      root.querySelector('.videoPlayers').style.display = cfg.thumbnail ? 'none' : 'block';
+      var th = root.querySelector('.videoThumbnail');
+      if (th) th.style.display = 'block';
+      show(['stop', 'pause', 'fs', 'embed'], 'none');
+      show(['start'], 'inline-block');
+    }
+
+    function init() {
+      /* si le système met la vidéo en pause (iOS, appel, bande son…), on la relance : le film ne reste jamais figé */
+      vids.forEach(function (v) {
+        v.addEventListener('pause', function () {
+          if (!running) return;
+          if (userPaused) return;
+          if (v !== vids[cur]) return;
+          if (v.ended) return;
+          setTimeout(function () {
+            if (running) { if (!userPaused) { if (v === vids[cur]) { if (v.paused) { if (!v.ended) P(v); } } } }
+          }, 150);
+        });
+      });
+      g('start').addEventListener('click', start);
+      g('stop').addEventListener('click', stop);
+      g('pause').addEventListener('click', function () {
+        var v = vids[cur];
+        if (!v.paused) {
+          userPaused = true;
+          vids.forEach(function (x) { x.pause(); });
+          tracks.forEach(function (t) { if (t.on) t.a.pause(); });
+          g('pause').innerHTML = playSVG; g('pause').title = cfg.txt.resume;
+        } else {
+          userPaused = false;
+          P(v);
+          tracks.forEach(function (t) { if (t.on) P(t.a); });
+          g('pause').innerHTML = pauseSVG; g('pause').title = cfg.txt.pause;
+        }
+      });
+      g('fs').addEventListener('click', function () {
+        var v = root.querySelector('.videoPlayers');
+        if (v.requestFullscreen) v.requestFullscreen();
+        else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+      });
+      var m = document.getElementById('embedModal_' + uid);
+      g('embed').addEventListener('click', function () {
+        g('code').value = '\x3Ciframe src="' + (cfg.iframeSrc || '#') + '" width="100%" height="463" frameborder="0" allowfullscreen style="max-width:800px;aspect-ratio:16/9;" allow="fullscreen">\x3C/iframe>';
+        m.classList.add('active');
+      });
+      g('close').addEventListener('click', function () { m.classList.remove('active'); });
+      m.addEventListener('click', function (e) { if (e.target === m) m.classList.remove('active'); });
+      g('copy').addEventListener('click', function () {
+        g('code').select(); document.execCommand('copy');
+        g('copy').textContent = cfg.txt.copied;
+        setTimeout(function () { g('copy').textContent = cfg.txt.copy; }, 2000);
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  }
+
+  function css(uid, standalone) {
+    var P = '#video-player-' + uid + ' ';
+    var c = standalone ? '* {margin:0;padding:0;box-sizing:border-box} body {background:#000}\n' : '';
+    c += P.trim() + ' {' + (standalone ? 'width:100%;background:#000' : 'max-width:800px;margin:0 auto;padding:20px') + '}\n';
+    c += P + '.videoThumbnail {max-width:100%;display:block;margin:0 auto}\n';
+    c += P + '.videoPlayers {position:relative;width:100%;padding-bottom:56.25%;height:0;background:#000}\n';
+    c += P + '.player {position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}\n';
+    c += P + '.video-controls {text-align:center;padding:8px 10px;' + (standalone ? 'background:#fff;' : 'margin-top:10px;') + 'display:flex;align-items:center;justify-content:center;position:relative}\n';
+    c += P + '.video-controls button {margin:0 5px;padding:8px 12px;font-size:14px;cursor:pointer;background:#c49a2b;color:#fff;border:none;border-radius:4px;font-family:inherit}\n';
+    c += P + '.video-controls button:hover {background:#a07e1e}\n';
+    c += P + '.otaimflux-signature {font-size:10px;color:#c49a2b;position:absolute;right:8px;letter-spacing:.5px;opacity:.8}\n';
+    c += '#embedModal_' + uid + ' {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:99999;justify-content:center;align-items:center}\n';
+    c += '#embedModal_' + uid + '.active {display:flex}\n';
+    c += '#embedModal_' + uid + ' .mc {background:#fff;padding:25px;border-radius:8px;max-width:550px;width:90%;text-align:center;font-family:sans-serif;font-size:14px;color:#555}\n';
+    c += '#embedModal_' + uid + ' h3 {margin-top:0;color:#333}\n';
+    c += '#embedModal_' + uid + ' textarea {width:100%;height:80px;margin:15px 0;padding:10px;border:1px solid #ddd;border-radius:4px;font-family:monospace;font-size:13px;resize:none}\n';
+    c += '#embedModal_' + uid + ' button {margin:0 5px;padding:8px 20px;background:#c49a2b;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px}\n';
+    c += '#embedModal_' + uid + ' .x {background:#888}\n';
+    return c;
+  }
+  function body(cfg, uid) {
+    var X = PT[cfg.lang] || PT.fr;
+    var ic = function (id, title, d, hide) {
+      return '    \x3Cbutton id="' + id + '_' + uid + '" title="' + title + '"' + (hide ? ' style="display:none;"' : '') + '>\x3Csvg viewBox="0 0 24 24" width="16" height="16" style="fill:#fff;vertical-align:middle;">\x3Cpath d="' + d + '"/>\x3C/svg>\x3C/button>\n';
+    };
+    var h = '\x3Cdiv id="video-player-' + uid + '">\n';
+    if (cfg.thumbnail) h += '  \x3Cimg class="videoThumbnail" src="' + cfg.thumbnail + '" alt="Miniature">\n';
+    h += '  \x3Cdiv class="videoPlayers" style="display:' + (cfg.thumbnail ? 'none' : 'block') + ';">\n';
+    h += '    \x3Cvideo class="player" id="p1_' + uid + '" style="z-index:1000;opacity:1;" playsinline preload="auto">\x3C/video>\n';
+    h += '    \x3Cvideo class="player" id="p2_' + uid + '" style="z-index:900;opacity:0;" playsinline preload="auto">\x3C/video>\n  \x3C/div>\n';
+    h += '  \x3Cdiv class="video-controls">\n';
+    h += ic('start', X.start, 'M8 5v14l11-7z', false);
+    h += ic('stop', X.stop, 'M6 6h12v12H6z', true);
+    h += ic('pause', X.pause, 'M6 19h4V5H6v14zm8-14v14h4V5h-4z', true);
+    h += ic('fs', X.fs, 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z', true);
+    h += ic('embed', X.embed, 'M8 6l-6 6 6 6 1.4-1.4L4.8 12l4.6-4.6L8 6zm6.6 10.6l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z', true);
+    h += '    \x3Cspan class="otaimflux-signature">OtaimFlux\x3C/span>\n  \x3C/div>\n\x3C/div>\n\n';
+    h += '\x3Cdiv id="embedModal_' + uid + '">\n  \x3Cdiv class="mc">\n    \x3Ch3>' + X.embedTitle + '\x3C/h3>\n    \x3Cp>' + X.embedText + '\x3C/p>\n';
+    h += '    \x3Ctextarea id="code_' + uid + '" readonly>\x3C/textarea>\n';
+    h += '    \x3Cbutton id="copy_' + uid + '">' + X.copy + '\x3C/button>\x3Cbutton class="x" id="close_' + uid + '">' + X.close + '\x3C/button>\n  \x3C/div>\n\x3C/div>\n\n';
+    var json = JSON.stringify(cfg, null, 2).replace(/\x3C/g, '\\u003c');
+    h += '\x3Cscript>\n' + licHeader() + '(function () {\n';
+    h += '  /* ── RÉGLAGES / SETTINGS ──\n     switchLead : secondes avant la fin de la vidéo où l’on change de séquence / seconds before the video ends when the switch happens (0 = at the very end; larger = earlier)\n     varLead    : réglage propre à une variante / setting for one variant: { "s": séquence, "v": variante, "lead": secondes } (numérotation à partir de 0 / numbering starts at 0)\n     fade       : durée du fondu en secondes / fade duration in seconds (0 = hard cut)\n     Test       : ?lead=0.3 */\n';
+    h += '  var CONFIG = ' + json + ';\n';
+    h += '  (' + runtime.toString() + ')(CONFIG, "' + uid + '");\n';
+    h += '})();\n// @license-end\n<' + '/script>';
+    return h;
+  }
+  /* Licence GPL v3+ avec exception : reprise dans chaque code généré */
+  var LIC_LINES = [
+    'This program is free software: you can redistribute it and/or modify',
+    'it under the terms of the GNU General Public License as published by',
+    'the Free Software Foundation, either version 3 of the License, or',
+    '(at your option) any later version.',
+    '',
+    'This program is distributed in the hope that it will be useful,',
+    'but WITHOUT ANY WARRANTY; without even the implied warranty of',
+    'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the',
+    'GNU General Public License for more details.',
+    '',
+    'You should have received a copy of the GNU General Public License',
+    'along with this program. If not, see https://www.gnu.org/licenses/',
+    '',
+    'ADDITIONAL PERMISSION under section 7 of the GNU GPL version 3:',
+    'As a special exception, the copyright holders give you permission to',
+    'include the code generated by OtaimFlux (the film player) in a web page or',
+    'website, and to distribute that page or website together with your own',
+    'content (films, videos, texts, images and code of your own), without that',
+    'page, website or content becoming subject to the GNU GPL merely because of',
+    'that inclusion. This permission does not extend to the OtaimFlux generator',
+    'or player code themselves, nor to modified versions of them, which remain',
+    'under the GNU GPL; if you modify them, you may, but need not, extend this',
+    'permission to your version.',
+    '',
+    'AUTORISATION SUPPLÉMENTAIRE (section 7 de la GNU GPL v3) :',
+    'à titre d\'exception, vous pouvez inclure le code produit par OtaimFlux',
+    '(le player) dans une page ou un site web et le diffuser avec vos propres',
+    'contenus (films, vidéos, textes, images, code qui vous appartient) sans que',
+    'cette page, ce site ou ces contenus soient soumis à la GNU GPL du seul fait',
+    'de cette inclusion. Cette autorisation ne s\'étend pas au code du',
+    'générateur ni du player eux-mêmes, ni à leurs versions modifiées, qui',
+    'restent sous GPL ; si vous les modifiez, vous pouvez, sans y être obligé,',
+    'étendre cette autorisation à votre version.'
+  ];
+  function licHeader() {
+    return '// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050\x26dn=gpl-3.0.txt GPL-v3-or-later\n/* OtaimFlux - https://otaim.net\n   Copyright (C) 2025 Cie O t\'aim, Jean-Daniel Magnin\n   SPDX-License-Identifier: GPL-3.0-or-later\n\n   ' + LIC_LINES.join('\n   ') + '\n*/\n';
+  }
+  function wpCode(cfg, uid) { return '\x3C!-- OtaimFlux - Copyright (C) 2025 Cie O t\'aim, Jean-Daniel Magnin - GPL v3+ avec exception / with exception (voir le script / see the script) -->\n\x3Cstyle>\n' + css(uid, false) + '\x3C/style>\n' + body(cfg, uid); }
+  function pageCode(cfg, uid) {
+    return '\x3C!DOCTYPE html>\n\x3Chtml lang="' + cfg.lang + '">\n\x3Chead>\n\x3C!-- OtaimFlux - Copyright (C) 2025 Cie O t\'aim, Jean-Daniel Magnin - GPL v3+ avec exception / with exception -->\n\x3Cmeta charset="UTF-8">\n\x3Cmeta name="viewport" content="width=device-width, initial-scale=1.0">\n\x3Ctitle>'
+      + esc(cfg.titre || 'OtaimFlux Player') + '\x3C/title>\n\x3Cstyle>\n' + css(uid, true) + '\x3C/style>\n\x3C/head>\n\x3Cbody>\n' + body(cfg, uid) + '\n\x3C/body>\n\x3C/html>';
+  }
+
+  function generate() {
+    var uid = 'dp_' + Math.random().toString(36).substring(2, 8);
+    var seqs = [], rules = [], varLead = [];
+    for (var i = 0; i < S.n; i++) seqs.push(urls(i));
+    S.vt.forEach(function (x) {
+      var sec = parseFloat(x.sec);
+      if (isNaN(sec)) return;
+      if (x.s > S.n) return;
+      if (x.v > seqs[x.s - 1].length) return;
+      varLead.push({ s: x.s - 1, v: x.v - 1, lead: sec });
+    });
+    S.rules.forEach(function (r) {
+      var not = [];
+      r.t.forEach(function (g) {
+        if (g.s !== r.fs) { if (g.v <= seqs[g.s - 1].length) not.push([g.s - 1, g.v - 1]); }
+      });
+      if (not.length) { if (r.fv <= seqs[r.fs - 1].length) rules.push({ from: [r.fs - 1, r.fv - 1], not: not }); }
+    });
+    var num = function (id, d) { var v = parseFloat($(id).value); return isNaN(v) ? d : v; };
+    var cfg = {
+      titre: $('of-titre').value.trim(),
+      thumbnail: $('of-thumb').value.trim(),
+      sound: $('of-sound').value.trim(),
+      iframeSrc: $('of-iframe').value.trim(),
+      sequences: seqs,
+      rules: rules,
+      hasEnding: fini(),
+      switchLead: num('of-lead', 1.1),
+      varLead: varLead,
+      fade: num('of-fade', 0.5),
+      lang: $('of-plang').value,
+      txt: { pause: PT[$('of-plang').value].pause, resume: PT[$('of-plang').value].resume, copy: PT[$('of-plang').value].copy, copied: PT[$('of-plang').value].copied },
+      tracks: S.tracks.filter(function (t) { return t.url; }).map(function (t) {
+        return { url: t.url, from: t.from - 1, to: t.to - 1, volume: t.vol / 100, loop: t.loop };
+      })
+    };
+    var A = wpCode(cfg, uid), B = pageCode(cfg, uid);
+    $('of-out').innerHTML = '\x3Cdiv class="of-tabs">\x3Cbutton class="on" id="of-t1">' + L('1 · Code pour votre page') + '\x3C/button>\x3Cbutton id="of-t2">' + L('2 · Page iframe (HTML)') + '\x3C/button>\x3C/div>'
+      + '\x3Cdiv class="of-panel" id="of-p1">\x3Cp class="of-hint">' + L('Collez ce code dans un bloc de code HTML de votre page (« HTML personnalisé » sous WordPress).') + '\x3C/p>\x3Ctextarea readonly id="of-a1">\x3C/textarea>\x3Cbutton class="of-copy" data-c="of-a1">' + L('Copier') + '\x3C/button>\x3C/div>'
+      + '\x3Cdiv class="of-panel off" id="of-p2">\x3Cp class="of-hint">' + L('Enregistrez dans un éditeur de texte brut sous un nom en') + ' \x3Cb>.html\x3C/b> ' + L('(celui indiqué à l’étape ④), puis déposez-le sur votre hébergement.') + '\x3C/p>\x3Ctextarea readonly id="of-a2">\x3C/textarea>\x3Cbutton class="of-copy" data-c="of-a2">' + L('Copier') + '\x3C/button>\x3C/div>';
+    $('of-a1').value = A; $('of-a2').value = B;
+    var tab = function (a) {
+      $('of-t1').className = a === 1 ? 'on' : ''; $('of-t2').className = a === 2 ? 'on' : '';
+      $('of-p1').className = 'of-panel' + (a === 1 ? '' : ' off'); $('of-p2').className = 'of-panel' + (a === 2 ? '' : ' off');
+    };
+    $('of-t1').onclick = function () { tab(1); };
+    $('of-t2').onclick = function () { tab(2); };
+    qsa('.of-copy').forEach(function (b) {
+      b.onclick = function () {
+        var ta = $(b.getAttribute('data-c')); ta.select(); document.execCommand('copy');
+        b.textContent = L('Copié !'); setTimeout(function () { b.textContent = L('Copier'); }, 2000);
+      };
+    });
+    $('of-out').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  /* langue partagée avec le mode d'emploi de la page (même choix, mémorisé) */
+  function startLang() {
+    var l = null;
+    try { l = localStorage.getItem('otaimfluxLang'); } catch (e) {}
+    if (l === 'fr') return l;
+    if (l === 'en') return l;
+    return /^fr/i.test(navigator.language || 'fr') ? 'fr' : 'en';
+  }
+  function broadcastLang(l) {
+    try { localStorage.setItem('otaimfluxLang', l); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent('otaimflux-lang', { detail: l })); } catch (e) {}
+  }
+  function init() {
+    $('of-n').addEventListener('input', renderSeqs);
+    $('of-fini').addEventListener('change', renderRules);
+    $('of-rules').addEventListener('click', onRules);
+    $('of-rules').addEventListener('change', onRules);
+    $('of-seqs').addEventListener('input', onSeqInput);
+    $('of-seqs').addEventListener('change', onSeqInput);
+    $('of-tracks').addEventListener('input', onTrack);
+    $('of-tracks').addEventListener('click', onTrack);
+    $('of-add-track').addEventListener('click', function () {
+      S.tracks.push({ url: '', from: 1, to: S.n, vol: 80, loop: false });
+      renderTracks(); validate();
+    });
+    $('of-go').addEventListener('click', generate);
+    $('of-vt').addEventListener('click', onVt);
+    $('of-vt').addEventListener('change', onVt);
+    $('of-vt').addEventListener('input', onVt);
+    $('of').addEventListener('input', save);
+    $('of').addEventListener('change', save);
+    $('of').addEventListener('click', save);
+    $('of-new').addEventListener('click', newFilm);
+    $('of-impb').addEventListener('click', function () { loadCode($('of-imp').value); });
+    $('of-impf').addEventListener('change', function () {
+      var fl = this.files[0];
+      if (!fl) return;
+      var fr = new FileReader();
+      fr.onload = function () { $('of-imp').value = fr.result; loadCode(fr.result); };
+      fr.readAsText(fl);
+    });
+    $('of-lang').addEventListener('click', function (e) { var l = e.target.getAttribute('data-lang'); if (l) { setLang(l); broadcastLang(l); } });
+    window.addEventListener('otaimflux-lang', function (ev) { if (ev.detail !== LANG) setLang(ev.detail); });
+    $('of-plang').addEventListener('change', function () { PLANGSET = true; });
+    restoreProject();
+    setLang(startLang());
+    renderSeqs();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
