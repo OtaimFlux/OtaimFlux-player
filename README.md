@@ -20,7 +20,7 @@ Forget simple "random videos." In an OtaimFlux film, each sequence has multiple 
 
 The film loops forever. But **each viewing is unique.**
 
-<img width="1440" height="900" alt="DIAGRAMME OtaimFlux " src="https://github.com/user-attachments/assets/d6c8dbff-63b3-4ae6-acc5-52020b740e20" />
+<img width="633" height="743" alt="DIAGRAMME OtaimFlux" src="https://github.com/user-attachments/assets/8e678816-1c1f-4266-86d9-8912e23df226" />
 
 ## Key features (and why they matter)
 
