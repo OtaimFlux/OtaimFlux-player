@@ -1,10 +1,10 @@
-
+# OtaimFlux
 
 **The 1st generator and editing tool for variable-sequence films (random without repetition + extensive settings), with its player.**
 **A 100% free, open-source tool for experimental filmmaking.**
 
 <img width="778" height="218" alt="LOGO-entete" src="https://github.com/user-attachments/assets/2cc98c86-aa51-4862-8b58-c8b73335411e" />
-# OtaimFlux
+
 
 ## Because it didn't exist
 
