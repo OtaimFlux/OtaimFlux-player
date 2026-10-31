@@ -20,7 +20,7 @@ Forget simple "random videos." In an OtaimFlux film, each sequence has multiple 
 
 The film loops forever. But **each viewing is unique.**
 
-[IMAGE: A simple diagram showing a sequence with 3 variants (A, B, C) being shuffled and played in a different order each time.]
+<img width="1440" height="900" alt="DIAGRAMME OtaimFlux " src="https://github.com/user-attachments/assets/4b148b6a-eef0-4fcf-b3ea-c30f53a7f5fb" />
 
 ## Key features (and why they matter)
 
@@ -39,7 +39,7 @@ Every film generated with OtaimFlux comes with a built-in "Embed" button. This p
 *   **Try the generator:** [https://otaim.net/inserer-un-film-aleatoire/](https://otaim.net/inserer-un-film-aleatoire/)
 *   **Explore our collection of films:** [https://otaim.net/videos-a-sequences-aleatoires/](https://otaim.net/videos-a-sequences-aleatoires/)
 
-[IMAGE: A screenshot of the generator interface, highlighting the exclusion rules panel and the soundtrack panel.]
+<img width="738" height="704" alt="Capture d’écran 2026-10-31 à 16 53 33" src="https://github.com/user-attachments/assets/6f99b103-b4ef-461b-85f6-138a2a1e1391" />
 
 ## We want to host your creations
 
