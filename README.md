@@ -1,6 +1,6 @@
 # OtaimFlux
 
-**The 1st generator and player for variable-sequence films (random without repetition + extensive editing settings).**
+**The 1st generator and editing tool for variable-sequence films (random without repetition + extensive settings), with its player.**
 **A 100% free, open-source tool for experimental filmmaking.**
 
 [IMAGE: A striking still from "Rêveries de Kafka" or another film, full width]
