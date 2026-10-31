@@ -1,36 +1,74 @@
 # OtaimFlux
 
-**FR** — OtaimFlux est un outil gratuit permettant de réaliser le montage et la diffusion de films à séquences variables : à chaque passage, le player choisit au hasard une variante différente pour chaque séquence, puis boucle à l'infini. Vos vidéos restent sur votre propre serveur.
+**The 1st generator and player for variable-sequence films (random without repetition + extensive editing settings).**
+**A 100% free, open-source tool for experimental filmmaking.**
 
-**EN** — OtaimFlux is a free tool for editing and publishing variable-sequence films: each time round, the player picks a different random variant for every sequence, then loops forever. Your videos stay on your own server.
+[IMAGE: A striking still from "Rêveries de Kafka" or another film, full width]
 
-- Générateur / Generator: https://otaim.net/inserer-un-film-aleatoire/
-- Exemples / Examples: https://otaim.net/videos-a-sequences-aleatoires/
+## Because it didn't exist
 
-## Contenu / Contents
+OtaimFlux was born from a simple observation: there was no simple, free, and accessible tool on the internet to create truly variable-sequence films — what we call "infinite films from shifting sequences."
 
-- `otaimflux-generateur.html` — le générateur, à coller dans un bloc « HTML personnalisé » de WordPress (ou dans une page HTML). / the generator, to paste into a WordPress “Custom HTML” block (or an HTML page).
-- `LICENSE` — GNU General Public License v3.
-- `LICENSE-EXCEPTION` — autorisation supplémentaire pour les pages qui intègrent le player / additional permission for pages that embed the player.
+We searched. We found brilliant artistic experiments (like Janos Xantus's *Got me* in 2001) and technical concepts like "uniform shuffle" or "database cinema." But no ready-to-use, web-native tool that any filmmaker, artist, or student could use to build their own.
 
-## Licence / License
+So we built it. And we're sharing it.
 
-**FR** — Le code du générateur, et du player qu'il produit, est publié sous licence **GNU GPL version 3 ou ultérieure** (voir `LICENSE`). Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin.
+## What is a variable-sequence film?
 
-Vous pouvez l'utiliser, l'étudier, le copier, le modifier et le redistribuer, y compris à des fins commerciales. Si vous diffusez une version modifiée, vous devez la publier avec son code source sous la même licence, en conservant la mention de copyright.
+Forget simple "random videos." In an OtaimFlux film, each sequence has multiple variants. Each time the film plays, the player picks a **different random variant for every sequence**, never repeating one until all the others have played (a "uniform shuffle without replacement"). Once every variant has been shown, it reshuffles and starts again.
 
-**Exception (voir `LICENSE-EXCEPTION`)** : utiliser le player produit par OtaimFlux dans votre page ou votre site, avec vos propres films, textes, images et code, ne vous oblige pas à publier votre site ou vos contenus sous GPL.
+The film loops forever. But **each viewing is unique.**
 
-La licence **ne couvre pas** les films et vidéos réalisés avec OtaimFlux (leurs auteurs conservent leurs droits), ni le nom « OtaimFlux » et son logo.
+[IMAGE: A simple diagram showing a sequence with 3 variants (A, B, C) being shuffled and played in a different order each time.]
 
-**EN** — The code of the generator, and of the player it produces, is released under the **GNU GPL version 3 or later** (see `LICENSE`). Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin.
+## Key features (and why they matter)
 
-You may use, study, copy, modify and redistribute it, including commercially. If you distribute a modified version, you must release it with its source code under the same license, keeping the copyright notice.
+### 1. The Thread of Exclusion Rules
+This is where OtaimFlux becomes a true editing tool. You can create rules like: *"When variant 3 of sequence 2 is played, never play variant 4/1, 5/11, 6/4, or 10/9 afterwards."*
+These rules follow the entire thread of the film, not just the next sequence. It allows you to build complex narrative logic into the randomness, ensuring that certain combinations never happen.
 
-**Exception (see `LICENSE-EXCEPTION`)**: using the player produced by OtaimFlux in your page or site, together with your own films, texts, images and code, does not require you to release your site or your content under the GPL.
+### 2. Soundtracks on Specific Sequences
+You can add a sound file that starts at the beginning of one sequence and fades out at the end of another (e.g., from sequence 2 to sequence 5). Add as many as you need. This lets you create evolving soundscapes that react to the random structure of the film.
 
-The license **does not cover** films and videos made with OtaimFlux (their authors keep their rights), nor the name “OtaimFlux” and its logo.
+### 3. The "Embed" Button (iframe)
+Every film generated with OtaimFlux comes with a built-in "Embed" button. This provides an iframe code that anyone can copy and paste to display your film on their own website — exactly as we do in our collection.
 
-## Contact
+## See it in action
 
-Via la page « Contact » de https://otaim.net / via the “Contact” page of https://otaim.net
+*   **Try the generator:** [https://otaim.net/inserer-un-film-aleatoire/](https://otaim.net/inserer-un-film-aleatoire/)
+*   **Explore our collection of films:** [https://otaim.net/videos-a-sequences-aleatoires/](https://otaim.net/videos-a-sequences-aleatoires/)
+
+[IMAGE: A screenshot of the generator interface, highlighting the exclusion rules panel and the soundtrack panel.]
+
+## We want to host your creations
+
+OtaimFlux is not just a tool; it's a community. If you create a variable-sequence film with our player, we would be honored to feature it in our collection.
+
+Send us the iframe code and a short description through our [Contact page](https://otaim.net/contact/). We'll review it and, if it fits, add it to our showcase.
+
+Our own examples, like *Rêveries de Kafka* (an animated film based on Kafka's drawings) and *Got me* (a rediscovered Hungarian experimental film), are just the beginning.
+
+## How to use it
+
+The tool is designed to be simple:
+1.  **Prepare your videos:** Export each variant as MP4 (H.264) with "Web Optimized" or "Fast Start" switched on. Upload them to your own server.
+2.  **Fill in the generator:** Enter your film's title, number of sequences, and paste the URLs of your video variants.
+3.  **Generate the codes:** The tool gives you two pieces of code — one for your website (e.g., WordPress Custom HTML block) and one for an iframe page (HTML file).
+4.  **Publish:** Paste the code on your site and upload the .html file to your hosting.
+
+That's it. Your infinite film is live.
+
+## License
+
+OtaimFlux is released under the **GNU General Public License v3.0 or later**, with an **additional exception** for embedding.
+
+This means:
+*   You can use, study, copy, modify, and redistribute the code, even commercially.
+*   If you distribute a modified version, you must release it under the same license.
+*   **The exception:** Using the player in your own web page or software with your own content does **not** force you to release your entire project under the GPL. The exception was created specifically to protect creators who embed OtaimFlux.
+
+For the full legal texts, see the `LICENSE` and `LICENSE-EXCEPTION` files in this repository.
+
+---
+
+*OtaimFlux – Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin.*
