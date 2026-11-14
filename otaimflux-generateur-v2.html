@@ -1,7 +1,8 @@
 <!--
   OtaimFlux - generateur de films a sequences variables / variable-sequence film generator
   Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin
-  SPDX-License-Identifier: GPL-3.0-or-later
+  SPDX-License-Identifier: GPL-3.0-or-later + exception 
+  https://github.com/OtaimFlux/OtaimFlux-player
   Avec exception pour les pages qui integrent le player genere / With an exception for pages that embed the generated player (voir le script / see the script)
 -->
 <div id="of" data-lang="fr">
@@ -49,6 +50,14 @@
 <label for="of-sound"><span class="fr">URL du son de changement</span><span class="en">Switch sound URL</span></label>
 <p class="of-hint"><span class="fr">Un petit son joué à chaque passage d'une séquence à l'autre.</span><span class="en">A short sound played each time the film moves from one sequence to the next.</span></p>
 <input type="url" id="of-sound" placeholder="https://...mp3">
+<div class="of-row">
+<label for="of-soff"><span class="fr">Décalage</span><span class="en">Offset</span></label>
+<span class="of-nw"><input type="number" id="of-soff" min="-5" max="3" step="0.05" value="0" style="width:80px;"> s</span>
+</div>
+<p class="of-hint"><span class="fr">Décalage : 0 = le son démarre au moment du changement d'image. Valeur négative = le son démarre avant, donc à cheval sur la fin de la séquence sortante (ex. −0,5 : une demi-seconde avant). Valeur positive = après.</span><span class="en">Offset: 0 = the sound starts at the moment the picture changes. A negative value starts the sound earlier, so it straddles the end of the outgoing sequence (e.g. −0.5: half a second before). A positive value starts it later.</span></p>
+<div class="of-subt"><span class="fr">Passages concernés (facultatif)</span><span class="en">Switches concerned (optional)</span></div>
+<p class="of-hint"><span class="fr">Par défaut, le son est joué à tous les passages. Pour le limiter, ajoutez des plages. Le passage n° k est le passage de la séquence k à la suivante (le dernier passage reboucle sur la séquence 1). Exemple : « du passage 1 au passage 4 » et « du passage 7 au passage 7 » = le son joue entre les séquences 1 à 5, et entre la 7 et la 8.</span><span class="en">By default the sound plays at every switch. To limit it, add ranges. Switch no. k is the switch from sequence k to the next one (the last switch loops back to sequence 1). Example: “from switch 1 to switch 4” and “from switch 7 to switch 7” = the sound plays between sequences 1 to 5, and between 7 and 8.</span></p>
+<div id="of-swr"></div>
 </div>
 
 <div class="of-sec">
@@ -188,7 +197,7 @@
    étendre cette autorisation à votre version.
 */
 (function () {
-  var S = { n: 1, seqs: [{ t: '', l: '' }], tracks: [], rules: [], vt: [] };
+  var S = { n: 1, seqs: [{ t: '', l: '' }], tracks: [], rules: [], vt: [], swr: [] };
   var LANG = 'fr', PLANGSET = false;
   var TR = {
     'Séquence': 'Sequence', 'variante': 'variant', 'variantes': 'variants',
@@ -218,7 +227,10 @@
     'séquence': 'sequence',
     '+ Ajouter une exclusion': '+ Add an exclusion', '+ Ajouter une règle': '+ Add a rule', 'Supprimer': 'Delete',
     'Sans effet : même séquence.': 'No effect: same sequence.',
-    'Sans effet : le film ne reboucle pas.': 'No effect: the film does not loop back.'
+    'Sans effet : le film ne reboucle pas.': 'No effect: the film does not loop back.',
+    'du passage n°': 'from switch no.', 'au passage n°': 'to switch no.',
+    '+ Ajouter une plage de passages': '+ Add a range of switches',
+    'Aucune plage : le son est joué à tous les passages.': 'No range: the sound plays at every switch.'
   };
   for (var tk in TR2) TR[tk] = TR2[tk];
   function L(k) { return LANG === 'en' ? (TR[k] || k) : k; }
@@ -264,7 +276,7 @@
     $('of-seqs').innerHTML = h;
     for (var i = 0; i < n; i++) count(i);
     S.tracks.forEach(function (t) { t.from = Math.min(t.from, n); t.to = Math.min(t.to, n); });
-    renderTracks(); renderRules(); renderVt(); validate();
+    renderTracks(); renderRules(); renderVt(); renderSwr(); validate();
   }
   function count(i) {
     var c = urls(i).length;
@@ -383,6 +395,37 @@
   }
   function refreshSel() { renderRules(); renderVt(); }
 
+  /* ── Passages concernés par le son de changement ── */
+  function swMax() { return Math.max(fini() ? S.n - 1 : S.n, 1); }
+  function renderSwr() {
+    var h = '', mx = swMax();
+    if (S.swr.length === 0) h += '\x3Cp class="of-hint">' + L('Aucune plage : le son est joué à tous les passages.') + '\x3C/p>';
+    S.swr.forEach(function (r, i) {
+      r.a = Math.min(Math.max(r.a, 1), mx);
+      r.b = Math.min(Math.max(r.b, r.a), mx);
+      h += '\x3Cdiv class="of-row of-vt">\x3Cspan>' + L('du passage n°') + '\x3C/span> \x3Cinput type="number" data-wi="' + i + '" data-wf="a" min="1" max="' + mx + '" value="' + r.a + '" style="width:70px"> '
+        + '\x3Cspan>' + L('au passage n°') + '\x3C/span> \x3Cinput type="number" data-wi="' + i + '" data-wf="b" min="1" max="' + mx + '" value="' + r.b + '" style="width:70px"> '
+        + '\x3Cbutton type="button" class="of-btn2" data-wdel="' + i + '" title="' + L('Supprimer') + '">✕\x3C/button>\x3C/div>';
+    });
+    h += '\x3Cbutton type="button" class="of-btn2" data-wadd="1">' + L('+ Ajouter une plage de passages') + '\x3C/button>';
+    $('of-swr').innerHTML = h;
+  }
+  function onSwr(e) {
+    var t = e.target;
+    if (e.type === 'click') {
+      if (t.hasAttribute('data-wadd')) S.swr.push({ a: 1, b: 1 });
+      else if (t.hasAttribute('data-wdel')) S.swr.splice(parseInt(t.getAttribute('data-wdel'), 10), 1);
+      else return;
+      renderSwr();
+      return;
+    }
+    if (e.type !== 'change') return;
+    if (!t.hasAttribute('data-wi')) return;
+    var r = S.swr[parseInt(t.getAttribute('data-wi'), 10)];
+    r[t.getAttribute('data-wf')] = parseInt(t.value, 10) || 1;
+    renderSwr();
+  }
+
   /* ── Mémoire du film en cours (dans ce navigateur) ── */
   var noSave = false, saveTimer = null;
   function save() {
@@ -392,6 +435,7 @@
       try {
         localStorage.setItem('otaimfluxProject', JSON.stringify({
           titre: $('of-titre').value, thumb: $('of-thumb').value, sound: $('of-sound').value, iframe: $('of-iframe').value,
+          soff: $('of-soff').value,
           fini: $('of-fini').checked, lead: $('of-lead').value, fade: $('of-fade').value,
           plang: $('of-plang').value, plset: PLANGSET, S: S
         }));
@@ -406,9 +450,10 @@
       var d = JSON.parse(raw);
       var filled = d.titre ? true : d.S.seqs.some(function (q) { return q.t; });
       if (!filled) return;
-      S.n = d.S.n; S.seqs = d.S.seqs; S.tracks = d.S.tracks || []; S.rules = d.S.rules || []; S.vt = d.S.vt || [];
+      S.n = d.S.n; S.seqs = d.S.seqs; S.tracks = d.S.tracks || []; S.rules = d.S.rules || []; S.vt = d.S.vt || []; S.swr = d.S.swr || [];
       $('of-n').value = d.S.n;
       $('of-titre').value = d.titre; $('of-thumb').value = d.thumb; $('of-sound').value = d.sound; $('of-iframe').value = d.iframe;
+      $('of-soff').value = d.soff === undefined ? 0 : d.soff;
       $('of-fini').checked = !!d.fini; $('of-lead').value = d.lead; $('of-fade').value = d.fade;
       $('of-plang').value = d.plang; PLANGSET = !!d.plset;
       $('of-resume-t').textContent = d.titre || '';
@@ -458,9 +503,11 @@
     S.n = n0; $('of-n').value = n0;
     S.seqs = seqs.map(function (u) { return { t: u.join('\n') }; });
     S.rules = rl.map(function (r) { return { fs: r.from[0] + 1, fv: r.from[1] + 1, t: r.not.map(function (x) { return { s: x[0] + 1, v: x[1] + 1 }; }) }; });
-    S.tracks = (c.tracks || []).map(function (t) { return { url: t.url, from: t.from + 1, to: t.to + 1, vol: Math.round((t.volume === undefined ? 0.8 : t.volume) * 100), loop: !!t.loop }; });
+    S.tracks = (c.tracks || []).map(function (t) { return { url: t.url, from: t.from + 1, to: t.to + 1, loop: !!t.loop }; });
     S.vt = (c.varLead || []).map(function (x) { return { s: x.s + 1, v: x.v + 1, sec: String(x.lead) }; });
+    S.swr = (c.soundSw || []).map(function (r) { return { a: r.from + 1, b: r.to + 1 }; });
     $('of-titre').value = c.titre || ''; $('of-thumb').value = c.thumbnail || ''; $('of-sound').value = c.sound || ''; $('of-iframe').value = c.iframeSrc || '';
+    $('of-soff').value = c.soundOffset === undefined ? 0 : c.soundOffset;
     $('of-fini').checked = !!c.hasEnding;
     $('of-lead').value = c.switchLead === undefined ? 1.1 : c.switchLead;
     $('of-fade').value = c.fade === undefined ? 0.5 : c.fade;
@@ -484,7 +531,6 @@
       h += '\x3Cdiv class="of-trk">\x3Cinput type="url" data-ti="' + i + '" data-f="url" value="' + esc(t.url) + '" placeholder="https://...mp3">'
         + L('de la séq. ') + '\x3Cinput type="number" data-ti="' + i + '" data-f="from" min="1" max="' + S.n + '" value="' + t.from + '">'
         + L('à la séq. ') + '\x3Cinput type="number" data-ti="' + i + '" data-f="to" min="1" max="' + S.n + '" value="' + t.to + '">'
-        + L('volume ') + '\x3Cinput type="number" data-ti="' + i + '" data-f="vol" min="0" max="100" value="' + t.vol + '">%'
         + '\x3Clabel class="of-inline" style="margin:0;font-weight:normal">\x3Cinput type="checkbox" data-ti="' + i + '" data-f="loop"' + (t.loop ? ' checked' : '') + '> ' + L('boucler') + '\x3C/label>'
         + '\x3Cbutton type="button" class="of-btn2" data-del="' + i + '">✕\x3C/button>\x3C/div>';
     });
@@ -497,7 +543,7 @@
     var tr = S.tracks[parseInt(t.getAttribute('data-ti'), 10)], f = t.getAttribute('data-f');
     if (f === 'url') tr.url = t.value.trim();
     else if (f === 'loop') tr.loop = t.checked;
-    else tr[f] = Math.min(Math.max(parseInt(t.value, 10) || 1, f === 'vol' ? 0 : 1), f === 'vol' ? 100 : S.n);
+    else tr[f] = Math.min(Math.max(parseInt(t.value, 10) || 1, 1), S.n);
     validate();
   }
 
@@ -523,13 +569,17 @@
     var cur = 0, seq = 0, timer = null, gen = 0, running = false, userPaused = false, curVar = 0, nextVar = 0;
     var played = cfg.sequences.map(function () { return []; });
     var hist = cfg.sequences.map(function () { return null; });
+    var prev = cfg.sequences.map(function () { return null; });
     var rules = cfg.rules || [];
     /* iOS ne permet pas de régler le volume par script : on repère ces appareils */
     var VOL = (function () { var m = document.createElement('video'); m.volume = 0.5; return m.volume === 0.5; })();
     var sw = cfg.sound ? new Audio(cfg.sound) : null;
+    var sOff = cfg.soundOffset || 0;
+    var sRanges = cfg.soundSw || [];
+    var sdone = false, stimer = null;
     var tracks = (cfg.tracks || []).map(function (t) {
-      var a = new Audio(t.url); a.preload = 'auto'; a.loop = !!t.loop; a.volume = t.volume;
-      return { a: a, from: t.from, to: t.to, vol: t.volume, on: false, iv: null };
+      var a = new Audio(t.url); a.preload = 'auto'; a.loop = !!t.loop; a.volume = 1;
+      return { a: a, from: t.from, to: t.to, on: false, iv: null };
     });
     var playSVG = '\x3Csvg viewBox="0 0 24 24" width="16" height="16" style="fill:#fff;vertical-align:middle;">\x3Cpath d="M8 5v14l11-7z"/>\x3C/svg>';
     var pauseSVG = '\x3Csvg viewBox="0 0 24 24" width="16" height="16" style="fill:#fff;vertical-align:middle;">\x3Cpath d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>\x3C/svg>';
@@ -559,6 +609,21 @@
       return l;
     }
 
+    /* son de changement : à quels passages, et quand */
+    function soundOn(s) {
+      if (sRanges.length === 0) return true;
+      for (var i = 0; i < sRanges.length; i++) {
+        if (s >= sRanges[i].from) { if (s <= sRanges[i].to) return true; }
+      }
+      return false;
+    }
+    function playSwitchSound() {
+      if (!sw) return;
+      if (userPaused) return;
+      sw.muted = false; sw.volume = 1; sw.currentTime = 0;
+      P(sw);
+    }
+
     /* bandes son */
     function applyAudio(s) {
       tracks.forEach(function (t) {
@@ -566,7 +631,7 @@
         if (inR) inR = s <= t.to;
         if (inR) {
           if (!t.on) {
-            t.on = true; clearInterval(t.iv); t.a.muted = false; t.a.volume = t.vol; t.a.currentTime = 0;
+            t.on = true; clearInterval(t.iv); t.a.muted = false; t.a.volume = 1; t.a.currentTime = 0;
             P(t.a);
           }
         } else if (t.on) { t.on = false; fadeOut(t); }
@@ -576,12 +641,12 @@
       clearInterval(t.iv);
       if (!VOL) { t.a.pause(); return; }
       t.iv = setInterval(function () {
-        if (t.a.volume > 0.05) { t.a.volume = Math.max(0, t.a.volume - t.vol / 10); }
-        else { clearInterval(t.iv); t.a.pause(); t.a.volume = t.vol; }
+        if (t.a.volume > 0.05) { t.a.volume = Math.max(0, t.a.volume - 0.1); }
+        else { clearInterval(t.iv); t.a.pause(); t.a.volume = 1; }
       }, 80);
     }
     function stopAudio() {
-      tracks.forEach(function (t) { clearInterval(t.iv); t.on = false; t.a.pause(); t.a.currentTime = 0; t.a.volume = t.vol; });
+      tracks.forEach(function (t) { clearInterval(t.iv); t.on = false; t.a.pause(); t.a.currentTime = 0; t.a.volume = 1; });
       if (sw) sw.pause();
     }
 
@@ -600,12 +665,24 @@
       for (var i = 0; i < vs.length; i++) if (ex.indexOf(i) < 0) ok.push(i);
       if (ok.length === 0) ok = vs.map(function (v, i) { return i; });
       var fresh = ok.filter(function (i) { return played[si].indexOf(i) < 0; });
-      if (fresh.length === 0) {
-        played[si] = played[si].filter(function (i) { return ok.indexOf(i) < 0; });
-        fresh = ok;
+      var c;
+      if (fresh.length > 0) {
+        c = fresh[Math.floor(Math.random() * fresh.length)];
+        played[si].push(c);
+      } else if (played[si].length >= vs.length) {
+        /* toutes les variantes ont vraiment été jouées : nouveau tour */
+        played[si] = [];
+        c = ok[Math.floor(Math.random() * ok.length)];
+        played[si].push(c);
+      } else {
+        /* il reste des variantes non jouées, mais interdites en ce moment :
+           on rejoue exceptionnellement une variante, sans la compter,
+           et celles qui restent dues passeront au prochain tour de cette séquence */
+        var cand = ok.filter(function (i) { return i !== prev[si]; });
+        if (cand.length === 0) cand = ok;
+        c = cand[Math.floor(Math.random() * cand.length)];
       }
-      var c = fresh[Math.floor(Math.random() * fresh.length)];
-      played[si].push(c);
+      prev[si] = c;
       hist[si] = c;
       return c;
     }
@@ -621,7 +698,7 @@
     function preload() {
       var h = vids[cur === 0 ? 1 : 0];
       h.muted = true;
-      P(h);
+      if (!userPaused) P(h);
     }
     function crossAudio(old, nw) {
       nw.muted = false;
@@ -638,9 +715,19 @@
 
     function doSwitch(g0) {
       if (g0 !== gen) return;
-      if (sw) { sw.muted = false; sw.currentTime = 0; P(sw); }
+      var src = seq;
+      if (sw) {
+        if (soundOn(src)) {
+          if (!sdone) {
+            sdone = true;
+            clearInterval(stimer);
+            if (sOff > 0) setTimeout(function () { if (g0 === gen) playSwitchSound(); }, sOff * 1000);
+            else playSwitchSound();
+          }
+        }
+      }
       var old = vids[cur], nw = vids[cur === 0 ? 1 : 0];
-      P(nw);
+      if (!userPaused) P(nw);
       old.style.zIndex = 900; old.style.opacity = 0;
       nw.style.zIndex = 1000; nw.style.opacity = 1;
       crossAudio(old, nw);
@@ -666,12 +753,31 @@
 
     function watch() {
       clearInterval(timer);
+      clearInterval(stimer);
+      sdone = false;
       var g0 = gen, v = vids[cur];
       if (!hasNext()) {
         v.addEventListener('ended', function () { if (g0 === gen) stop(); }, { once: true });
         return;
       }
       var lead = leadFor(seq), armed = false;
+      /* son de changement placé AVANT le changement d'image (décalage négatif) */
+      if (sw) {
+        if (soundOn(seq)) {
+          if (sOff < 0) {
+            stimer = setInterval(function () {
+              if (g0 !== gen) { clearInterval(stimer); return; }
+              if (v.paused) return;
+              if (!(v.duration > 0)) return;
+              if (v.duration - v.currentTime <= lead - sOff) {
+                clearInterval(stimer);
+                sdone = true;
+                playSwitchSound();
+              }
+            }, 40);
+          }
+        }
+      }
       var go = function () {
         if (armed) return;
         if (g0 !== gen) return;
@@ -693,8 +799,9 @@
       gen++;
       var g0 = gen;
       running = true; userPaused = false;
+      clearInterval(stimer);
       played.forEach(function (a) { a.length = 0; });
-      for (var i = 0; i < n; i++) hist[i] = null;
+      for (var i = 0; i < n; i++) { hist[i] = null; prev[i] = null; }
       seq = 0; cur = 0;
       var th = root.querySelector('.videoThumbnail');
       if (th) th.style.display = 'none';
@@ -720,12 +827,21 @@
         applyAudio(0);
         watch();
       });
+      /* secours : si la première vidéo n'a toujours pas démarré après 4 s, on relance la lecture */
+      setTimeout(function () {
+        if (g0 !== gen) return;
+        if (!running) return;
+        if (userPaused) return;
+        if (vids[0].paused) P(vids[0]);
+        else if (vids[0].readyState < 3) P(vids[0]);
+      }, 4000);
     }
 
     function stop() {
       gen++;
       running = false;
       clearInterval(timer);
+      clearInterval(stimer);
       vids.forEach(function (v) { v.pause(); v.muted = false; v.removeAttribute('src'); v.load(); });
       stopAudio();
       root.querySelector('.videoPlayers').style.display = cfg.thumbnail ? 'none' : 'block';
@@ -736,7 +852,32 @@
     }
 
     function init() {
-      /* si le système met la vidéo en pause (iOS, appel, bande son…), on la relance : le film ne reste jamais figé */
+      /* Le système met la vidéo en pause (appel, écran verrouillé, autre application sur iPhone/iPad…).
+         Page cachée : tout reste en pause (vidéos, bandes son, son de changement), on reprend d'un clic.
+         Sinon (appel, bande son…) : on relance, le film ne reste jamais figé.
+         On ne réagit qu'à une vraie pause du système : un simple changement de visibilité ne met rien en pause. */
+      var hiddenAt = 0, fsUntil = 0;
+      function fsMark() { fsUntil = Date.now() + 4000; }
+      function inFs() {
+        if (document.fullscreenElement) return true;
+        if (document.webkitFullscreenElement) return true;
+        return Date.now() < fsUntil;
+      }
+      function gone() {
+        if (document.hidden) return true;
+        return Date.now() - hiddenAt < 1500;
+      }
+      function hold() {
+        userPaused = true;
+        vids.forEach(function (x) { x.pause(); });
+        tracks.forEach(function (t) { if (t.on) t.a.pause(); });
+        if (sw) sw.pause();
+        g('pause').innerHTML = playSVG; g('pause').title = cfg.txt.resume;
+      }
+      document.addEventListener('fullscreenchange', fsMark);
+      document.addEventListener('webkitfullscreenchange', fsMark);
+      document.addEventListener('visibilitychange', function () { if (document.hidden) hiddenAt = Date.now(); });
+      window.addEventListener('pagehide', function () { hiddenAt = Date.now(); });
       vids.forEach(function (v) {
         v.addEventListener('pause', function () {
           if (!running) return;
@@ -744,7 +885,16 @@
           if (v !== vids[cur]) return;
           if (v.ended) return;
           setTimeout(function () {
-            if (running) { if (!userPaused) { if (v === vids[cur]) { if (v.paused) { if (!v.ended) P(v); } } } }
+            if (!running) return;
+            if (userPaused) return;
+            if (v !== vids[cur]) return;
+            if (!v.paused) return;
+            if (v.ended) return;
+            if (gone()) {
+              if (!VOL) { hold(); return; }
+              if (!inFs()) { hold(); return; }
+            }
+            P(v);
           }, 150);
         });
       });
@@ -765,13 +915,14 @@
         }
       });
       g('fs').addEventListener('click', function () {
+        fsMark();
         var v = root.querySelector('.videoPlayers');
         if (v.requestFullscreen) v.requestFullscreen();
         else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
       });
       var m = document.getElementById('embedModal_' + uid);
       g('embed').addEventListener('click', function () {
-        g('code').value = '\x3Ciframe src="' + (cfg.iframeSrc || '#') + '" width="100%" height="463" frameborder="0" allowfullscreen style="max-width:800px;aspect-ratio:16/9;" allow="fullscreen">\x3C/iframe>';
+        g('code').value = '\x3Cdiv style="max-width:800px;margin:0 auto;">\x3Cdiv style="position:relative;width:100%;height:0;padding-bottom:calc(56.25% + 50px);">\x3Ciframe src="' + (cfg.iframeSrc || '#') + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen allow="fullscreen">\x3C/iframe>\x3C/div>\x3C/div>';
         m.classList.add('active');
       });
       g('close').addEventListener('click', function () { m.classList.remove('active'); });
@@ -788,12 +939,19 @@
 
   function css(uid, standalone) {
     var P = '#video-player-' + uid + ' ';
-    var c = standalone ? '* {margin:0;padding:0;box-sizing:border-box} body {background:#000}\n' : '';
-    c += P.trim() + ' {' + (standalone ? 'width:100%;background:#000' : 'max-width:800px;margin:0 auto;padding:20px') + '}\n';
+    var c = standalone ? '* {margin:0;padding:0;box-sizing:border-box} html,body {height:100%;overflow:hidden} body {background:#000}\n' : '';
+    c += P.trim() + ' {' + (standalone ? 'width:100%;height:100%;background:#000;display:flex;flex-direction:column' : 'max-width:800px;margin:0 auto;padding:20px') + '}\n';
     c += P + '.videoThumbnail {max-width:100%;display:block;margin:0 auto}\n';
+    if (standalone) c += P + '.videoThumbnail {flex:1 1 0%;min-height:0;width:100%;object-fit:contain;background:#000}\n';
     c += P + '.videoPlayers {position:relative;width:100%;padding-bottom:56.25%;height:0;background:#000}\n';
     c += P + '.player {position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}\n';
+    if (standalone) c += P + '.videoPlayers {flex:1 1 0%;min-height:0;height:auto;padding-bottom:0}\n' + P + '.player {object-fit:contain}\n';
+    c += P + '.videoPlayers:fullscreen {padding-bottom:0;width:100%;height:100%;background:#000}\n';
+    c += P + '.videoPlayers:-webkit-full-screen {padding-bottom:0;width:100%;height:100%;background:#000}\n';
+    c += P + '.videoPlayers:fullscreen .player {object-fit:contain}\n';
+    c += P + '.videoPlayers:-webkit-full-screen .player {object-fit:contain}\n';
     c += P + '.video-controls {text-align:center;padding:8px 10px;' + (standalone ? 'background:#fff;' : 'margin-top:10px;') + 'display:flex;align-items:center;justify-content:center;position:relative}\n';
+    if (standalone) c += P + '.video-controls {flex:none;height:50px;padding:0 10px}\n';
     c += P + '.video-controls button {margin:0 5px;padding:8px 12px;font-size:14px;cursor:pointer;background:#c49a2b;color:#fff;border:none;border-radius:4px;font-family:inherit}\n';
     c += P + '.video-controls button:hover {background:#a07e1e}\n';
     c += P + '.otaimflux-signature {font-size:10px;color:#c49a2b;position:absolute;right:8px;letter-spacing:.5px;opacity:.8}\n';
@@ -801,7 +959,7 @@
     c += '#embedModal_' + uid + '.active {display:flex}\n';
     c += '#embedModal_' + uid + ' .mc {background:#fff;padding:25px;border-radius:8px;max-width:550px;width:90%;text-align:center;font-family:sans-serif;font-size:14px;color:#555}\n';
     c += '#embedModal_' + uid + ' h3 {margin-top:0;color:#333}\n';
-    c += '#embedModal_' + uid + ' textarea {width:100%;height:80px;margin:15px 0;padding:10px;border:1px solid #ddd;border-radius:4px;font-family:monospace;font-size:13px;resize:none}\n';
+    c += '#embedModal_' + uid + ' textarea {width:100%;height:120px;margin:15px 0;padding:10px;border:1px solid #ddd;border-radius:4px;font-family:monospace;font-size:13px;resize:none}\n';
     c += '#embedModal_' + uid + ' button {margin:0 5px;padding:8px 20px;background:#c49a2b;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px}\n';
     c += '#embedModal_' + uid + ' .x {background:#888}\n';
     return c;
@@ -828,7 +986,7 @@
     h += '    \x3Cbutton id="copy_' + uid + '">' + X.copy + '\x3C/button>\x3Cbutton class="x" id="close_' + uid + '">' + X.close + '\x3C/button>\n  \x3C/div>\n\x3C/div>\n\n';
     var json = JSON.stringify(cfg, null, 2).replace(/\x3C/g, '\\u003c');
     h += '\x3Cscript>\n' + licHeader() + '(function () {\n';
-    h += '  /* ── RÉGLAGES / SETTINGS ──\n     switchLead : secondes avant la fin de la vidéo où l’on change de séquence / seconds before the video ends when the switch happens (0 = at the very end; larger = earlier)\n     varLead    : réglage propre à une variante / setting for one variant: { "s": séquence, "v": variante, "lead": secondes } (numérotation à partir de 0 / numbering starts at 0)\n     fade       : durée du fondu en secondes / fade duration in seconds (0 = hard cut)\n     Test       : ?lead=0.3 */\n';
+    h += '  /* ── RÉGLAGES / SETTINGS ──\n     switchLead : secondes avant la fin de la vidéo où l’on change de séquence / seconds before the video ends when the switch happens (0 = at the very end; larger = earlier)\n     varLead    : réglage propre à une variante / setting for one variant: { "s": séquence, "v": variante, "lead": secondes } (numérotation à partir de 0 / numbering starts at 0)\n     fade       : durée du fondu en secondes / fade duration in seconds (0 = hard cut)\n     soundOffset / soundSw : décalage en secondes du son de changement (négatif = avant le changement) et passages concernés { "from", "to" } (à partir de 0) / switch sound offset in seconds (negative = before the switch) and switches concerned\n     Test       : ?lead=0.3 */\n';
     h += '  var CONFIG = ' + json + ';\n';
     h += '  (' + runtime.toString() + ')(CONFIG, "' + uid + '");\n';
     h += '})();\n// @license-end\n<' + '/script>';
@@ -881,7 +1039,7 @@
 
   function generate() {
     var uid = 'dp_' + Math.random().toString(36).substring(2, 8);
-    var seqs = [], rules = [], varLead = [];
+    var seqs = [], rules = [], varLead = [], soundSw = [];
     for (var i = 0; i < S.n; i++) seqs.push(urls(i));
     S.vt.forEach(function (x) {
       var sec = parseFloat(x.sec);
@@ -897,11 +1055,18 @@
       });
       if (not.length) { if (r.fv <= seqs[r.fs - 1].length) rules.push({ from: [r.fs - 1, r.fv - 1], not: not }); }
     });
+    var mx = swMax();
+    S.swr.forEach(function (r) {
+      if (r.a > mx) return;
+      soundSw.push({ from: r.a - 1, to: Math.min(r.b, mx) - 1 });
+    });
     var num = function (id, d) { var v = parseFloat($(id).value); return isNaN(v) ? d : v; };
     var cfg = {
       titre: $('of-titre').value.trim(),
       thumbnail: $('of-thumb').value.trim(),
       sound: $('of-sound').value.trim(),
+      soundOffset: Math.min(Math.max(num('of-soff', 0), -5), 3),
+      soundSw: soundSw,
       iframeSrc: $('of-iframe').value.trim(),
       sequences: seqs,
       rules: rules,
@@ -912,7 +1077,7 @@
       lang: $('of-plang').value,
       txt: { pause: PT[$('of-plang').value].pause, resume: PT[$('of-plang').value].resume, copy: PT[$('of-plang').value].copy, copied: PT[$('of-plang').value].copied },
       tracks: S.tracks.filter(function (t) { return t.url; }).map(function (t) {
-        return { url: t.url, from: t.from - 1, to: t.to - 1, volume: t.vol / 100, loop: t.loop };
+        return { url: t.url, from: t.from - 1, to: t.to - 1, loop: t.loop };
       })
     };
     var A = wpCode(cfg, uid), B = pageCode(cfg, uid);
@@ -949,15 +1114,17 @@
   }
   function init() {
     $('of-n').addEventListener('input', renderSeqs);
-    $('of-fini').addEventListener('change', renderRules);
+    $('of-fini').addEventListener('change', function () { renderRules(); renderSwr(); });
     $('of-rules').addEventListener('click', onRules);
     $('of-rules').addEventListener('change', onRules);
+    $('of-swr').addEventListener('click', onSwr);
+    $('of-swr').addEventListener('change', onSwr);
     $('of-seqs').addEventListener('input', onSeqInput);
     $('of-seqs').addEventListener('change', onSeqInput);
     $('of-tracks').addEventListener('input', onTrack);
     $('of-tracks').addEventListener('click', onTrack);
     $('of-add-track').addEventListener('click', function () {
-      S.tracks.push({ url: '', from: 1, to: S.n, vol: 80, loop: false });
+      S.tracks.push({ url: '', from: 1, to: S.n, loop: false });
       renderTracks(); validate();
     });
     $('of-go').addEventListener('click', generate);
