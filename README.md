@@ -3,8 +3,9 @@
 **The 1st generator and editing tool for variable-sequence films (random without repetition + extensive settings), with its player.**
 **A 100% free, open-source tool for experimental filmmaking.**
 
-<img width="778" height="218" alt="LOGO-entete" src="https://github.com/user-attachments/assets/2cc98c86-aa51-4862-8b58-c8b73335411e" />
-
+<p align="center">
+  <img width="778" height="218" alt="LOGO-entete" src="https://github.com/user-attachments/assets/2cc98c86-aa51-4862-8b58-c8b73335411e" />
+</p>
 
 ## Because it didn't exist
 
@@ -20,7 +21,9 @@ Forget simple "random videos." In an OtaimFlux film, each sequence has multiple 
 
 The film loops forever. But **each viewing is unique.**
 
-<img width="633" height="743" alt="DIAGRAMME OtaimFlux" src="https://github.com/user-attachments/assets/8e678816-1c1f-4266-86d9-8912e23df226" />
+<p align="center">
+  <img width="633" height="743" alt="DIAGRAMME OtaimFlux" src="https://github.com/user-attachments/assets/8e678816-1c1f-4266-86d9-8912e23df226" />
+</p>
 
 ## Key features (and why they matter)
 
