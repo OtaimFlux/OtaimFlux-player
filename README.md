@@ -25,8 +25,8 @@ The film loops forever. But **each viewing is unique.**
 ## Key features (and why they matter)
 
 ### 1. The Thread of Exclusion Rules
-This is where OtaimFlux becomes a true editing tool. You can create rules like: *"When variant 3 of sequence 2 is played (2/3), never play variant 4/1, 5/11, 6/4, or 10/9 afterwards."*
-These rules follow the entire thread of the film, not just the next sequence. It allows you to build complex narrative logic into the randomness, ensuring that certain combinations never happen.
+This is where OtaimFlux becomes a true editing tool. You can create rules like: *"When variant 3 of sequence 4 is played (4/3), never play variant 5/11, 6/4, 10/9 and 2/5 afterwards."*
+These rules follow the entire thread of the film, even in the next loop. It allows you to build complex narrative logic into the randomness, ensuring that certain combinations never happen.
 
 ### 2. Soundtracks on Specific Sequences
 You can add a sound file that starts at the beginning of one sequence and fades out at the end of another (e.g., from sequence 2 to sequence 5). Add as many as you need. This lets you create evolving soundscapes that react to the random structure of the film.
