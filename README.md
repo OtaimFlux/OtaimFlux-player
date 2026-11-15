@@ -37,15 +37,19 @@ Every film generated with OtaimFlux comes with a built-in "Embed" button. This p
 ## See it in action
 
 *   **Try the generator:** [https://otaim.net/inserer-un-film-aleatoire/](https://otaim.net/inserer-un-film-aleatoire/)
-<a href="https://otaim.net/inserer-un-film-aleatoire/">
+<p align="center">
+  <a href="https://otaim.net/inserer-un-film-aleatoire/">
 <img width="738" height="704" alt="Capture d’écran 2026-10-31 à 16 53 33" src="https://github.com/user-attachments/assets/6f99b103-b4ef-461b-85f6-138a2a1e1391" />
 </a>
-
+</p>
+<br>
 
 *   **Explore our collection of films:** [https://otaim.net/videos-a-sequences-aleatoires/](https://otaim.net/videos-a-sequences-aleatoires/)
-<a href="https://otaim.net/videos-a-sequences-aleatoires/">
+<p align="center">
+  <a href="https://otaim.net/videos-a-sequences-aleatoires/">
 <img width="557" height="366" alt="Capture d’écran 2026-11-16 à 00 38 32" src="https://github.com/user-attachments/assets/3369b749-2e4f-49e6-a5d9-e1ec15ce79de" />
 </a>
+</p>
 
 
 ## We want to host your creations
