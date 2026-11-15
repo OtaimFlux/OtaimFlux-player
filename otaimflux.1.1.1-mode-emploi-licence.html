@@ -1,0 +1,137 @@
+<!-- Début du bloc Mode d'emploi + Licence OtaimFlux (FR/EN) -->
+<div id="ofm" class="ofm" data-lang="fr">
+<div class="ofm-lang"><button type="button" data-lang="fr" class="on">FR</button><button type="button" data-lang="en">EN</button></div>
+
+<!-- ═════ FRANÇAIS ═════ -->
+<div class="ofm-fr">
+<h3>🇫🇷 OtaimFlux : mode d’emploi en 5 étapes</h3>
+<p>OtaimFlux est un outil gratuit pour monter et diffuser des films à séquences variables : à chaque passage, il tire au hasard une variante pour chaque séquence (sans en répéter avant d’avoir tout joué), puis boucle sans fin. <strong>Vos vidéos restent sur votre propre serveur.</strong></p>
+<ol>
+<li><strong>Préparez vos vidéos.</strong> Exportez chaque variante en <strong>MP4 (H.264)</strong> avec l’option <strong>« Web Optimized »</strong> (HandBrake) ou <strong>« Fast Start »</strong> (Final Cut, Compressor) : sans elle, la lecture peut sembler « cassée ». Donnez-leur des noms simples, sans accents, espaces ni apostrophes, et déposez-les dans un même dossier de votre hébergement.</li>
+<li><strong>Renseignez le générateur.</strong> Étape ① : le titre et le nombre de séquences. Étape ② : pour chaque séquence, collez les adresses de ses variantes (une par ligne) ou, après avoir indiqué l’adresse de base du dossier, importez ou glissez les fichiers eux-mêmes (seul leur nom compte). Tout le reste (règles d’exclusion, sons, timing, miniature, étape ④) est facultatif et expliqué dans le générateur.</li>
+<li><strong>Vérifiez et prévisualisez.</strong> « Vérifier les vidéos » teste chaque adresse. L’étape ⑤ résume le film (nombre de films possibles, liste « Prêt à publier ») et « Prévisualiser le film » le joue sans quitter le générateur.</li>
+<li><strong>Cliquez sur « Générer les codes ».</strong> Deux codes apparaissent dans deux onglets : <em>1 · Code pour votre page</em> et <em>2 · Page iframe (HTML)</em>.</li>
+<li><strong>Publiez.</strong>
+<ul>
+<li><strong>Code 1</strong> : collez-le à l’endroit de votre page où le film doit apparaître, dans un bloc « HTML personnalisé » (WordPress) ou l’équivalent de votre outil de site (Wix, Squarespace, Webflow, Joomla…).</li>
+<li><strong>Code 2</strong> : copiez-le dans un éditeur de texte brut (Bloc-notes, TextEdit en mode « texte brut » ; pas Word), enregistrez-le en .html sous le nom prévu à l’étape ④, puis déposez-le sur votre hébergement à cette adresse. C’est la page que propose le bouton « Intégrer » du player. Après chaque remplacement de ce fichier, ajoutez <code>?v=2</code>, puis <code>?v=3</code>… à l’adresse de l’iframe pour que les navigateurs n’affichent pas l’ancienne version.</li>
+</ul></li>
+</ol>
+<h4>Retrouver un film plus tard</h4>
+<p>Le générateur garde en mémoire, dans votre navigateur, le film en cours (un seul, sur cet ordinateur) ; « Nouveau film » l’efface. Pour reprendre un film déjà publié, même depuis un autre ordinateur : ouvrez « Reprendre un film déjà généré » et collez le code de votre page (ou le fichier .html du player). Modifiez, cliquez de nouveau sur « Générer les codes », remplacez l’ancien code et redéposez le fichier .html. <strong>Conservez le code de chaque film : c’est votre sauvegarde.</strong></p>
+<h4>En cas de problème</h4>
+<ul>
+<li><strong>Zone noire, ou rien ne se lance :</strong> lancez « Vérifier les vidéos » ; le plus souvent, une adresse est incorrecte.</li>
+<li><strong>Le film démarre lentement :</strong> les vidéos ne sont pas optimisées pour le web (étape 1).</li>
+<li><strong>Le code s’affiche en clair sur la page :</strong> il n’a pas été collé dans un bloc de code HTML.</li>
+<li><strong>Le fichier .html s’ouvre comme une page :</strong> c’est normal. Pour le copier, ouvrez-le avec un éditeur de texte (clic droit, « Ouvrir avec »).</li>
+</ul>
+<p><strong>Partagez votre création :</strong> proposez-nous votre film pour notre collection en nous envoyant l’iframe généré et une courte description via la page « Contact » de la Cie O t’aim.</p>
+
+<div class="ofm-license">
+<div class="ofm-license-header">
+<img src="https://otaim.net/wp-content/uploads/2026/10/gplv3-88x31-1.png" alt="GPLv3" width="88" height="31">
+<span><strong>OtaimFlux</strong> – Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin.</span>
+</div>
+<p>Ce logiciel est distribué sous licence <strong>GNU General Public License version 3 ou ultérieure</strong>, accompagnée d'une autorisation supplémentaire. <strong>Cette exception vous permet d'intégrer le player OtaimFlux dans vos propres pages web ou logiciels sans que l'ensemble de votre projet (vos contenus, votre code) ne soit automatiquement soumis à la licence GPL du seul fait de cette intégration.</strong></p>
+<p>Les textes complets de la licence et de l'exception sont disponibles ici : <a href="https://github.com/OtaimFlux/OtaimFlux-player" target="_blank" rel="noopener noreferrer">Dépôt GitHub d'OtaimFlux</a>.</p>
+</div>
+</div>
+
+<!-- ═════ ENGLISH ═════ -->
+<div class="ofm-en">
+<h3>🇬🇧 OtaimFlux: user guide in 5 steps</h3>
+<p>OtaimFlux is a free tool for editing and publishing variable-sequence films: each time round, it picks a random variant for every sequence (never repeating one until all the others have played), then loops endlessly. <strong>Your videos stay on your own server.</strong></p>
+<ol>
+<li><strong>Prepare your videos.</strong> Export each variant as <strong>MP4 (H.264)</strong> with <strong>“Web Optimized”</strong> (HandBrake) or <strong>“Fast Start”</strong> (Final Cut, Compressor) switched on: without it, playback can seem broken. Give them simple names, with no accents, spaces or apostrophes, and upload them to one folder on your hosting.</li>
+<li><strong>Fill in the generator.</strong> Step ①: the title and the number of sequences. Step ②: for each sequence, paste the addresses of its variants (one per line) or, once you have entered the folder’s base address, import or drag the files themselves (only their name counts). Everything else (exclusion rules, sounds, timing, thumbnail, step ④) is optional and explained in the generator.</li>
+<li><strong>Check and preview.</strong> “Check the videos” tests every address. Step ⑤ summarises the film (number of possible films, “Ready to publish” checklist) and “Preview the film” plays it without leaving the generator.</li>
+<li><strong>Click “Generate the codes”.</strong> Two codes appear in two tabs: <em>1 · Code for your page</em> and <em>2 · Iframe page (HTML)</em>.</li>
+<li><strong>Publish.</strong>
+<ul>
+<li><strong>Code 1</strong>: paste it where the film should appear on your page, in a “Custom HTML” block (WordPress) or the equivalent in your site builder (Wix, Squarespace, Webflow, Joomla…).</li>
+<li><strong>Code 2</strong>: copy it into a plain-text editor (Notepad, or TextEdit in “plain text” mode; not Word), save it as .html under the name planned in step ④, then upload it to your hosting at that address. This is the page offered by the player’s “Embed” button. Each time you replace this file, add <code>?v=2</code>, then <code>?v=3</code>… to the iframe address so that browsers do not show the old version.</li>
+</ul></li>
+</ol>
+<h4>Find a film again later</h4>
+<p>The generator keeps the film in progress in your browser’s memory (just one, on this computer); “New film” clears it. To reopen a film that is already published, even from another computer: open “Reopen a film you already generated” and paste your page’s code (or the player’s .html file). Edit, click “Generate the codes” again, replace the old code and upload the .html file again. <strong>Keep the code of each film: it is your backup.</strong></p>
+<h4>Troubleshooting</h4>
+<ul>
+<li><strong>Black area, or nothing plays:</strong> run “Check the videos”; most often an address is wrong.</li>
+<li><strong>The film starts slowly:</strong> the videos are not optimised for the web (step 1).</li>
+<li><strong>The code shows up as text on the page:</strong> it was not pasted into an HTML code block.</li>
+<li><strong>The .html file opens as a web page:</strong> that is normal. To copy it, open it with a text editor (right-click, “Open with”).</li>
+</ul>
+<p><strong>Share your creation:</strong> suggest your film for our collection by sending us the generated iframe and a short description through the “Contact” page of Cie O t’aim.</p>
+
+<div class="ofm-license">
+<div class="ofm-license-header">
+<img src="https://otaim.net/wp-content/uploads/2026/10/gplv3-88x31-1.png" alt="GPLv3" width="88" height="31">
+<span><strong>OtaimFlux</strong> – Copyright (C) 2025 Cie O t'aim, Jean-Daniel Magnin.</span>
+</div>
+<p>This software is distributed under the <strong>GNU General Public License version 3 or later</strong>, with an additional permission. <strong>This exception allows you to integrate the OtaimFlux player into your own web pages or software without your entire project (your content, your code) automatically becoming subject to the GPL merely because of that integration.</strong></p>
+<p>The full texts of the license and the exception are available here: <a href="https://github.com/OtaimFlux/OtaimFlux-player" target="_blank" rel="noopener noreferrer">OtaimFlux GitHub repository</a>.</p>
+</div>
+</div>
+</div>
+
+<style>
+.ofm{max-width:800px;margin:20px 0;font-family:sans-serif;font-size:15px;line-height:1.55;color:#444}
+.ofm[data-lang="fr"] .ofm-en{display:none}
+.ofm[data-lang="en"] .ofm-fr{display:none}
+.ofm-lang{text-align:right;margin-bottom:6px}
+.ofm-lang button{padding:4px 12px;border:1px solid #c49a2b;background:#fff;color:#a07724;cursor:pointer;font-size:12px}
+.ofm-lang button:first-child{border-radius:4px 0 0 4px}
+.ofm-lang button:last-child{border-radius:0 4px 4px 0;border-left:none}
+.ofm-lang button.on{background:#c49a2b;color:#fff}
+.ofm h3{color:#a07724;margin:0 0 10px}
+.ofm h4{color:#a07724;margin:22px 0 6px;font-size:16px}
+.ofm p{margin:0 0 10px}
+.ofm ol,.ofm ul{margin:0 0 10px 22px;padding:0}
+.ofm li{margin:0 0 8px}
+.ofm code{background:#f3efe4;padding:1px 5px;border-radius:3px;font-size:13px}
+.ofm-license{font-size:13px;line-height:1.5;color:#666;background:#f9f9f9;border:1px solid #eee;padding:12px 15px;border-radius:4px;margin:26px 0 0}
+.ofm-license-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ofm-license-header img{flex-shrink:0}
+.ofm-license p{margin:0 0 6px;text-align:justify}
+.ofm-license a{color:#a07724;text-decoration:underline;font-weight:bold}
+.ofm-license a:hover{color:#c49a2b}
+</style>
+
+<script>
+/* Le mode d'emploi suit la langue du générateur (même choix, mémorisé) et peut aussi la changer */
+(function () {
+  var blk = document.getElementById('ofm');
+  if (!blk) return;
+  var gen = null;
+  function setL(l) {
+    if (l !== 'fr') { if (l !== 'en') return; }
+    if (blk.getAttribute('data-lang') !== l) blk.setAttribute('data-lang', l);
+    var bs = blk.querySelectorAll('.ofm-lang button');
+    for (var i = 0; i < bs.length; i++) bs[i].className = bs[i].getAttribute('data-lang') === l ? 'on' : '';
+  }
+  function boot() {
+    gen = document.getElementById('of');
+    var l = gen ? gen.getAttribute('data-lang') : null;
+    if (!l) { try { l = localStorage.getItem('otaimfluxLang'); } catch (e) {} }
+    if (!l) l = /^fr/i.test(navigator.language || 'fr') ? 'fr' : 'en';
+    setL(l);
+    if (gen) {
+      if (window.MutationObserver) {
+        new MutationObserver(function () { setL(gen.getAttribute('data-lang')); }).observe(gen, { attributes: true, attributeFilter: ['data-lang'] });
+      }
+    }
+  }
+  blk.querySelector('.ofm-lang').addEventListener('click', function (e) {
+    var l = e.target.getAttribute('data-lang');
+    if (!l) return;
+    setL(l);
+    try { localStorage.setItem('otaimfluxLang', l); } catch (e2) {}
+    try { window.dispatchEvent(new CustomEvent('otaimflux-lang', { detail: l })); } catch (e3) {}
+  });
+  window.addEventListener('otaimflux-lang', function (ev) { setL(ev.detail); });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+<!-- Fin du bloc Mode d'emploi + Licence OtaimFlux -->
