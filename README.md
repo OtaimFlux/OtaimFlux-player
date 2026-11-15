@@ -50,7 +50,7 @@ Every film generated with OtaimFlux comes with a built-in "Embed" button. This p
 
 ## We want to host your creations
 
-OtaimFlux is not just a tool; it's a community. If you create a variable-sequence film with our player, we would be honored to feature it in our collection.
+OtaimFlux is not just a tool: if you create a variable-sequence film with our player, we would be honored to feature it in our collection.
 
 Send us the iframe code and a short description through our [Contact page](https://otaim.net/contact/). We'll review it and, if it fits, add it to our showcase.
 
